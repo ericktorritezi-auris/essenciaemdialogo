@@ -1,0 +1,255 @@
+// Schema inicial — Sprint 0/1.
+// Reflete o ERD conceitual aprovado no Plano Técnico (Seção 7).
+// Nenhuma migration foi aplicada em nenhum banco ainda.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ContentStatus {
+  DRAFT
+  IN_REVIEW
+  SCHEDULED
+  PUBLISHED
+  PAUSED
+  ARCHIVED
+}
+
+enum UserRole {
+  ADMIN
+  COLLABORATOR
+}
+
+enum EventType {
+  OWN
+  RECOMMENDED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          UserRole
+  avatarMediaId String?
+  bio           String?
+  active        Boolean   @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  articles   Article[] @relation("ArticleAuthor")
+  news       News[]    @relation("NewsAuthor")
+  auditLogs  AuditLog[]
+
+  @@index([role])
+  @@index([email])
+}
+
+model Episode {
+  id               String        @id @default(uuid())
+  title            String
+  slug             String        @unique
+  season           Int?
+  number           Int?
+  shortDescription String?
+  fullDescription  String?
+  coverMediaId     String?
+  duration         Int? // segundos
+  status           ContentStatus @default(DRAFT)
+  featured         Boolean       @default(false)
+  transcript       String?
+  seoTitle         String?
+  seoDescription   String?
+  ogMediaId        String?
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  createdBy   String?
+  updatedBy   String?
+
+  platformLinks EpisodePlatformLink[]
+
+  @@index([status, publishedAt])
+  @@index([slug])
+}
+
+model Article {
+  id             String        @id @default(uuid())
+  title          String
+  slug           String        @unique
+  subtitle       String?
+  summary        String?
+  content        String
+  coverMediaId   String?
+  authorId       String
+  status         ContentStatus @default(DRAFT)
+  featured       Boolean       @default(false)
+  seoTitle       String?
+  seoDescription String?
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  author User @relation("ArticleAuthor", fields: [authorId], references: [id])
+
+  @@index([status, publishedAt])
+  @@index([slug])
+}
+
+model News {
+  id             String        @id @default(uuid())
+  title          String
+  slug           String        @unique
+  summary        String?
+  content        String
+  coverMediaId   String?
+  authorId       String
+  sourceName     String?
+  sourceUrl      String?
+  sourceDate     DateTime?
+  status         ContentStatus @default(DRAFT)
+  seoTitle       String?
+  seoDescription String?
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  author User @relation("NewsAuthor", fields: [authorId], references: [id])
+
+  @@index([status, publishedAt])
+  @@index([slug])
+}
+
+model Event {
+  id             String        @id @default(uuid())
+  title          String
+  slug           String        @unique
+  type           EventType
+  description    String?
+  coverMediaId   String?
+  organizer      String?
+  city           String?
+  state          String?
+  country        String?
+  modality       String? // online | presencial | hibrido
+  eventStartAt   DateTime
+  eventEndAt     DateTime?
+  eventTimezone  String        @default("America/Sao_Paulo")
+  url            String?
+  status         ContentStatus @default(DRAFT)
+  seoTitle       String?
+  seoDescription String?
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([status, publishedAt])
+  @@index([eventStartAt])
+  @@index([slug])
+}
+
+model Media {
+  id        String   @id @default(uuid())
+  url       String
+  altText   String?
+  caption   String?
+  mimeType  String
+  sizeBytes Int
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+  deletedAt DateTime?
+}
+
+model Platform {
+  id     String  @id @default(uuid())
+  name   String
+  icon   String?
+  active Boolean @default(true)
+  order  Int     @default(0)
+
+  episodeLinks EpisodePlatformLink[]
+}
+
+model EpisodePlatformLink {
+  id         String @id @default(uuid())
+  episodeId  String
+  platformId String
+  url        String
+
+  episode  Episode  @relation(fields: [episodeId], references: [id])
+  platform Platform @relation(fields: [platformId], references: [id])
+
+  @@unique([episodeId, platformId])
+}
+
+model RadioConfiguration {
+  id          String   @id @default(uuid())
+  enabled     Boolean  @default(false)
+  mode        String // spotify | external | own_audio | editorial_playlist
+  title       String?
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model ContactSubmission {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  question    String
+  consentedAt DateTime
+  createdAt   DateTime @default(now())
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorUserId  String?
+  actorRole    String?
+  action       String
+  entityType   String
+  entityId     String?
+  entityLabel  String?
+  beforeState  Json?
+  afterState   Json?
+  metadata     Json?
+  ip           String?
+  userAgent    String?
+  correlationId String?
+  createdAt    DateTime @default(now())
+
+  actor User? @relation(fields: [actorUserId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([actorUserId])
+  @@index([createdAt])
+}
+
+model Redirect {
+  id         String   @id @default(uuid())
+  entityType String
+  oldSlug    String
+  newSlug    String
+  createdAt  DateTime @default(now())
+
+  @@unique([entityType, oldSlug])
+}
+
+model SiteSetting {
+  key   String @id
+  value Json
+}

@@ -1,0 +1,51 @@
+/**
+ * Design tokens — Essência em Diálogo
+ * Fonte única de verdade para cor, tipografia, spacing e demais tokens.
+ * Nunca espalhar valores HEX/px soltos em componentes (Seção 5-6 do
+ * Prompt Mestre) — sempre referenciar estas variáveis.
+ */
+
+:root {
+  /* ===== Cor — paleta definitiva aprovada ===== */
+  --color-charcoal: #1b1b1e;       /* carvão profundo — fundo base */
+  --color-warm-black: #0d0c0b;     /* preto quente — fundo mais escuro / header */
+  --color-petrol: #101c22;         /* azul-petróleo quase preto — seções alternadas */
+  --color-ivory: #efe7d8;          /* marfim quente — texto principal sobre fundo escuro */
+  --color-bronze: #a9793f;         /* bronze/cobre — detalhes, ícones, bordas */
+  --color-terracotta: #a5583a;     /* terracota controlado — CTA, destaque pontual */
+
+  /* ===== Tipografia ===== */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Montserrat", system-ui, sans-serif;
+
+  /* ===== Radius ===== */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+
+  /* ===== Spacing base (escala 4px) ===== */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ===== Z-index ===== */
+  --z-header: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+}
+
+/* Respeita preferência do usuário por redução de movimento (Seção 51) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

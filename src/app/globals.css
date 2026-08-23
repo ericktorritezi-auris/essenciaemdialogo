@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "../styles/tokens.css";
+
+html,
+body {
+  background-color: var(--color-warm-black);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+}
+
+/* Skip link — acessibilidade (Seção 51) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--color-terracotta);
+  color: var(--color-ivory);
+  padding: var(--space-2) var(--space-4);
+  z-index: var(--z-toast);
+}
+
+.skip-link:focus {
+  left: var(--space-2);
+  top: var(--space-2);
+}
