@@ -1,184 +1,183 @@
-# 🎙️ Essência em Diálogo
+# Essência em Diálogo — Website + CMS Editorial
 
 > **Duas perspectivas. Um tema. Uma conversa além da superfície.**
 
-Repositório oficial do website e CMS editorial do **Essência em Diálogo**, apresentado por **Erick Torritezi e Iolanda Reis**.
+Website institucional, editorial e audiovisual do podcast **Essência em Diálogo**, apresentado por **Erick Torritezi** e **Iolanda Reis**, com CMS próprio para gestão de episódios, artigos, notícias, eventos e mídia.
+
+Este repositório é a fonte de verdade do código do projeto.
 
 ---
 
-## 📌 Sobre o projeto
+## Sobre o projeto
 
-**Essência em Diálogo** é um programa de conversas profundas sobre temas que atravessam a experiência humana.
+O Essência em Diálogo não é um site institucional simples nem um portal de blog genérico — é uma plataforma editorial própria, pensada para crescer de forma independente das plataformas externas onde o podcast é distribuído (Spotify, YouTube, Apple Podcasts, etc.).
 
-Em cada episódio, diferentes perspectivas se encontram para explorar questões relacionadas a:
+Principais características:
 
-- emoções;
-- relacionamentos;
-- comportamento;
-- escolhas;
-- padrões;
-- autoconhecimento;
-- propósito;
-- desenvolvimento humano;
-- conflitos internos;
-- existência.
+- Site público **mobile first**, editorial, cinematográfico e premium.
+- CMS próprio com controle de acesso (Admin / Colaborador) e fluxo de aprovação editorial.
+- Módulos de conteúdo: Episódios, Artigos, Notícias, Eventos.
+- Seção **Últimos Lançamentos**, agregando conteúdo publicado na semana editorial corrente (`America/Sao_Paulo`, segunda a domingo).
+- Módulo **Rádio / ON AIR** configurável.
+- Auditoria integral e imutável de ações administrativas.
+- SEO estruturado por conteúdo (title, description, OG, schema.org).
+- Biblioteca de mídia com storage persistente (object storage S3-compatible).
 
-O website não será apenas uma página institucional do podcast.
-
-O projeto está sendo concebido como uma **plataforma editorial própria**, capaz de reunir episódios, artigos, notícias, eventos, conteúdos especiais e diferentes formas de interação com o público.
+Especificação completa do produto: ver `docs/PROMPT_MESTRE.md` (ou documento equivalente no repositório de documentação do projeto).
 
 ---
 
-## 🚧 Status do projeto
+## Stack
 
-> **FASE ATUAL: ARQUITETURA E PRÉ-DESENVOLVIMENTO**
+| Camada | Tecnologia |
+|---|---|
+| Framework | Next.js (App Router) |
+| Linguagem | TypeScript |
+| ORM | Prisma |
+| Banco de dados | PostgreSQL (Railway) |
+| Autenticação | Sessão server-side + Argon2id |
+| Editor rich text | Tiptap (com sanitização server-side) |
+| Storage de mídia | Object storage S3-compatible (a confirmar provedor) |
+| CSS / Design System | Tailwind CSS + tokens customizados |
+| Busca | PostgreSQL Full Text Search |
+| Deploy | Railway |
+| CI | GitHub Actions |
 
-O projeto ainda **não está em produção**.
-
-Neste momento estão sendo definidos e validados:
-
-- arquitetura de software;
-- arquitetura PostgreSQL;
-- infraestrutura Railway;
-- autenticação;
-- RBAC;
-- CMS;
-- segurança;
-- auditoria;
-- armazenamento de mídia;
-- integrações;
-- CI/CD;
-- estratégia de testes;
-- QA;
-- deploy;
-- backup e disaster recovery.
-
-O desenvolvimento somente deverá começar após a aprovação formal do plano técnico.
+> A stack final e as justificativas técnicas estão documentadas em `docs/ARCHITECTURE.md`.
 
 ---
 
-## 🎯 Objetivo
+## Requisitos
 
-Construir uma plataforma:
-
-- editorial;
-- responsiva;
-- mobile first;
-- segura;
-- administrável;
-- auditável;
-- acessível;
-- performática;
-- escalável;
-- documentada;
-- preparada para produção.
-
-A tecnologia deverá permanecer simples para o visitante e previsível para quem administra o projeto.
+- Node.js LTS (versão a fixar em `.nvmrc` / `engines` do `package.json`)
+- PostgreSQL 15+ (local via Docker, ou instância Railway em ambiente de desenvolvimento)
+- Conta de object storage S3-compatible para desenvolvimento (ou emulação local, ex. MinIO)
 
 ---
 
-## 🧩 Escopo principal
+## Ambiente
 
-A plataforma deverá contemplar:
-
-### Website público
-
-- Home;
-- O Programa;
-- Episódios;
-- Artigos;
-- Notícias;
-- Eventos;
-- Apresentadores;
-- Ouça Agora;
-- Contato;
-- Busca;
-- páginas legais.
-
-### Conteúdo audiovisual
-
-- catálogo de episódios;
-- páginas individuais;
-- capas;
-- metadados;
-- Spotify;
-- outras plataformas;
-- player incorporado quando suportado;
-- links externos;
-- transcrições opcionais.
-
-### CMS
-
-Painel administrativo próprio em:
-
-`/admin`
-
-Com gerenciamento de:
-
-- páginas;
-- seções;
-- episódios;
-- artigos;
-- notícias;
-- eventos;
-- mídia;
-- menus;
-- plataformas;
-- usuários;
-- colaboradores;
-- configurações;
-- SEO;
-- rádio/ON AIR;
-- logs de auditoria.
+1. Copie o arquivo de exemplo de variáveis de ambiente:
+   ```bash
+   cp .env.example .env
+   ```
+2. Preencha as variáveis locais (nunca commitar `.env`). Referência completa em `docs/ENVIRONMENT.md`.
+3. Timezone oficial de negócio do projeto: `America/Sao_Paulo` (`APP_TIMEZONE`).
 
 ---
 
-## 👥 Perfis de acesso
+## Instalação
 
-### Administrador
+```bash
+# instalar dependências
+npm install
 
-Possui controle global da plataforma.
+# aplicar migrations no banco local
+npx prisma migrate dev
 
-Entre suas atribuições estarão:
+# rodar o projeto em modo desenvolvimento
+npm run dev
+```
 
-- gerenciamento de conteúdo;
-- gerenciamento estrutural;
-- usuários;
-- colaboradores;
-- configurações;
-- mídia;
-- menus;
-- episódios;
-- publicações;
-- SEO;
-- rádio;
-- auditoria.
-
-### Colaborador
-
-Terá acesso editorial restrito a:
-
-- artigos;
-- notícias;
-- eventos;
-- próprio perfil.
-
-As permissões deverão ser garantidas no backend, e não apenas escondidas visualmente na interface.
+A aplicação sobe por padrão em `http://localhost:3000`.
 
 ---
 
-## 📝 Fluxo editorial
+## Scripts
 
-Estados inicialmente previstos:
+| Comando | Descrição |
+|---|---|
+| `npm run dev` | Ambiente de desenvolvimento |
+| `npm run build` | Build de produção |
+| `npm run start` | Inicia build de produção |
+| `npm run lint` | Lint do código |
+| `npm run typecheck` | Verificação de tipos TypeScript |
+| `npm run test` | Testes unitários e de integração |
+| `npm run test:e2e` | Testes end-to-end |
+| `npx prisma migrate dev` | Aplica migrations em desenvolvimento |
+| `npx prisma studio` | Interface visual do banco (uso local apenas) |
 
-```text
-Rascunho
-   ↓
-Em revisão
-   ↓
-Agendado
-   ↓
-Publicado
-   ↓
-Pausado / Arquivado
+---
 
+## Testes
+
+Este é um projeto de produção — nenhuma alteração é considerada pronta sem passar pela suíte de testes (unitários, integração, E2E, RBAC e timezone).
+
+```bash
+npm run test
+npm run test:e2e
+```
+
+Detalhes da estratégia de QA em `docs/QA.md` e `docs/TESTING.md`.
+
+---
+
+## Build
+
+```bash
+npm run build
+npm run start
+```
+
+---
+
+## Desenvolvimento → Produção
+
+Fluxo de deploy:
+
+```
+feature branch → Pull Request → CI (lint, typecheck, testes, build) →
+review → merge em main → build → migrations seguras →
+deploy staging → smoke/E2E → aprovação → deploy produção →
+healthcheck → smoke pós-deploy
+```
+
+Branch `main` é protegida. Nenhum merge é permitido sem CI verde.
+
+Detalhes em `docs/DEPLOYMENT.md` e `docs/RAILWAY.md`.
+
+---
+
+## Estrutura de branches
+
+- `main` — produção, protegida
+- `develop` — integração (se aplicável)
+- `feature/*` — novas funcionalidades
+- `fix/*` — correções
+
+Commits seguem o padrão [Conventional Commits](https://www.conventionalcommits.org/).
+
+---
+
+## Documentação
+
+| Documento | Conteúdo |
+|---|---|
+| `docs/ARCHITECTURE.md` | Arquitetura técnica geral |
+| `docs/DATABASE.md` | Modelagem do banco e migrations |
+| `docs/DEPLOYMENT.md` | Processo de deploy |
+| `docs/RAILWAY.md` | Configuração de infraestrutura Railway |
+| `docs/ENVIRONMENT.md` | Variáveis de ambiente |
+| `docs/SECURITY.md` | Threat model e medidas de segurança |
+| `docs/AUTHORIZATION.md` | Autenticação e RBAC |
+| `docs/CMS.md` | Funcionamento do CMS |
+| `docs/CONTENT_MODEL.md` | Modelo de conteúdo editorial |
+| `docs/AUDIT.md` | Estratégia de auditoria |
+| `docs/BACKUP_RESTORE.md` | Backup e disaster recovery |
+| `docs/QA.md` / `docs/TESTING.md` | Estratégia de testes |
+| `docs/RUNBOOK.md` | Procedimentos operacionais de incidente |
+| `CHANGELOG.md` | Histórico de releases |
+
+---
+
+## Licença e propriedade
+
+Todos os direitos reservados.
+
+Desenvolvido por **Erick Torritezi**.
+
+---
+
+## Contato
+
+Dúvidas técnicas sobre este repositório: abrir uma *issue* interna ou contatar o mantenedor do projeto.
