@@ -25,15 +25,15 @@ Regra central (Seção 33 do Plano Técnico, opção B): **Colaborador cria, edi
 
 Gerados automaticamente a partir do título na criação (`slugify()`), com desambiguação automática (`-2`, `-3`...) se já existir um igual. Ainda não editável pela UI depois de criado — é um ajuste pequeno para uma próxima iteração, se for necessário trocar a URL de algo já publicado (nesse caso, também precisa criar um registro em `Redirect`, que já existe no schema mas ainda não tem UI).
 
-## Editor de texto — decisão consciente desta sprint
+## Editor de texto — Tiptap (entregue na Sprint 5)
 
-A stack aprovada (Seção 6 do Plano Técnico) previa **Tiptap** como editor rich text WYSIWYG. Nesta sprint, o campo de conteúdo é um **textarea simples** aceitando HTML básico (negrito, itálico, links, listas, títulos H2-H4), sanitizado no servidor (`src/lib/sanitize.ts`, allowlist de tags/atributos) antes de qualquer gravação no banco.
+A stack aprovada (Seção 6 do Plano Técnico) previa **Tiptap** como editor rich text WYSIWYG. Da Sprint 2 até a Sprint 4, o campo de conteúdo foi um textarea simples aceitando HTML básico — decisão deliberada de escopo para entregar o fluxo editorial completo (RBAC, revisão, auditoria, mídia) primeiro, e só então investir na experiência de edição.
 
-Por quê: o Tiptap exige uma integração própria (toolbar, upload de imagem inline, extensões, ainda mais sanitização client-side) que é, na prática, um trabalho do tamanho de uma sub-sprint por si só. Entregar o fluxo editorial completo (RBAC, revisão, auditoria, mídia) funcionando de ponta a ponta primeiro — com um campo de texto mais simples — permite validar toda a arquitetura agora e trocar só essa peça depois, sem depender de nada mais mudar.
+Nesta sprint, o textarea foi substituído pelo editor visual de verdade (`src/components/admin/rich-text-editor.tsx`) em Artigos, Notícias e Eventos: negrito/itálico/tachado, títulos H2-H4, listas, citação, link, e inserção de imagem direto da Biblioteca de Mídia (reaproveita o `MediaPicker` já existente).
 
-**A sanitização server-side já está implementada e ativa** independentemente do editor usado na UI — trocar o textarea por Tiptap no futuro não muda nada na segurança, só na experiência de edição.
+**A sanitização server-side continua sendo a fronteira de segurança real** (`src/lib/sanitize.ts`, allowlist de tags/atributos) — o Tiptap muda só a experiência de quem edita, nunca foi e não é a camada que garante segurança. Mesmo que alguém manipule o HTML por fora do editor, o servidor filtra do mesmo jeito antes de gravar.
 
-**Decisão de cronograma (registrada explicitamente, para não ficar solta):** o editor visual completo (Tiptap) entra na **Sprint 5** — momento em que Artigos/Notícias/Eventos vão ao ar no site público, quando a formatação do conteúdo passa a importar de verdade para quem visita o site, não só para quem edita.
+**Não entrou no Tiptap desta sprint:** o campo de descrição completa dos **Episódios** continua com textarea simples — o compromisso registrado na Sprint 3 era especificamente sobre Artigos/Notícias/Eventos ("quando vão ao ar no site público"), e Episódios já tinham ido ao ar na Sprint 4 com textarea. Pode entrar numa sprint futura se fizer sentido, é a mesma peça (`RichTextEditor`) já pronta para reaproveitar.
 
 ## Biblioteca de mídia
 
@@ -47,7 +47,7 @@ Exclusão verifica uso antes de apagar (Seção 10 do Plano Técnico) — se a i
 
 ## O que ainda falta (fora do escopo desta sprint)
 
-- Editor WYSIWYG completo (Tiptap) no lugar do textarea — **agendado para a Sprint 5** (ver decisão acima).
+- Editor visual do campo de descrição completa dos Episódios (continua textarea simples — ver nota acima).
 - Edição de slug depois de criado + geração automática de `Redirect`.
 - Filtros de status/busca nas telas de listagem (hoje mostram tudo).
 - Lixeira com restauração (existe soft delete no banco, mas ainda não há UI para listar/restaurar excluídos).
