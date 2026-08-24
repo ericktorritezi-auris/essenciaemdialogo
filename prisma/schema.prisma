@@ -51,6 +51,7 @@ model User {
 
   articles   Article[] @relation("ArticleAuthor")
   news       News[]    @relation("NewsAuthor")
+  events     Event[]   @relation("EventAuthor")
   auditLogs  AuditLog[]
 
   @@index([role])
@@ -154,6 +155,7 @@ model Event {
   eventEndAt     DateTime?
   eventTimezone  String        @default("America/Sao_Paulo")
   url            String?
+  authorId       String
   status         ContentStatus @default(DRAFT)
   seoTitle       String?
   seoDescription String?
@@ -163,22 +165,25 @@ model Event {
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
+  author User @relation("EventAuthor", fields: [authorId], references: [id])
+
   @@index([status, publishedAt])
   @@index([eventStartAt])
   @@index([slug])
 }
 
 model Media {
-  id        String   @id @default(uuid())
-  url       String
-  altText   String?
-  caption   String?
-  mimeType  String
-  sizeBytes Int
-  width     Int?
-  height    Int?
-  createdAt DateTime @default(now())
-  deletedAt DateTime?
+  id         String    @id @default(uuid())
+  url        String
+  storageKey String
+  altText    String?
+  caption    String?
+  mimeType   String
+  sizeBytes  Int
+  width      Int?
+  height     Int?
+  createdAt  DateTime  @default(now())
+  deletedAt  DateTime?
 }
 
 model Platform {

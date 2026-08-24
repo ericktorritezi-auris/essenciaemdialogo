@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireAnyRole, UnauthorizedError } from "@/lib/auth/rbac";
+import { AdminNav } from "@/components/admin/admin-nav";
 
 /**
  * Fronteira de segurança real do painel administrativo (Seção 8/95).
@@ -23,5 +24,10 @@ export default async function AdminLayout({
     redirect("/login");
   }
 
-  return <div className="min-h-screen bg-warm-black text-ivory">{children}</div>;
+  return (
+    <div className="min-h-screen bg-warm-black text-ivory">
+      <AdminNav />
+      {children}
+    </div>
+  );
 }
