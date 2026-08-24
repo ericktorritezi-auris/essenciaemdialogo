@@ -215,6 +215,7 @@ model RadioConfiguration {
   mode        String // spotify | external | own_audio | editorial_playlist
   title       String?
   description String?
+  content     Json? // dados específicos do modo — ver docs/RADIO.md
   updatedAt   DateTime @updatedAt
 }
 
