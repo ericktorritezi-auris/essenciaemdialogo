@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { apiFetch, ApiError } from "@/lib/api-client/fetch";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { MediaPicker } from "@/components/admin/media-picker";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { isValidSpotifyUrl } from "@/lib/spotify";
 
 interface PlatformLink {
@@ -213,11 +214,12 @@ export function EpisodeEditor({ episodeId }: { episodeId?: string }) {
             className="mt-1 w-full rounded border border-bronze/30 bg-charcoal px-3 py-2 text-ivory" />
         </label>
 
-        <label className="block text-sm text-ivory/80">
-          Descrição completa
-          <textarea value={fullDescription} onChange={(e) => setFullDescription(e.target.value)} rows={8}
-            className="mt-1 w-full rounded border border-bronze/30 bg-charcoal px-3 py-2 text-ivory font-mono text-sm" />
-        </label>
+        <div>
+          <p className="block text-sm text-ivory/80">Descrição completa</p>
+          <div className="mt-1">
+            <RichTextEditor value={fullDescription} onChange={setFullDescription} />
+          </div>
+        </div>
 
         {!isNew && <MediaPicker value={coverMediaId} onChange={setCoverMediaId} />}
 

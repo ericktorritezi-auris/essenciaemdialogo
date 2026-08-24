@@ -141,3 +141,24 @@ export async function ensurePlatformsSeeded(): Promise<void> {
 
   console.log(`[seed] ${DEFAULT_PLATFORMS.length} plataforma(s) criada(s) com valores padrão.`);
 }
+
+/**
+ * Configuração do Rádio/ON AIR — singleton (sempre um único registro).
+ * Nasce desabilitada; o admin escolhe o modo e ativa em `/admin/radio`
+ * quando tiver os links/conteúdo reais definidos (Seção 12 do Prompt
+ * Mestre — nenhum modo funciona "sozinho" sem configuração).
+ */
+export async function ensureRadioConfigurationSeeded(): Promise<void> {
+  const count = await prisma.radioConfiguration.count();
+  if (count > 0) return;
+
+  await prisma.radioConfiguration.create({
+    data: {
+      enabled: false,
+      mode: "spotify",
+      title: "Rádio Essência em Diálogo",
+    },
+  });
+
+  console.log("[seed] configuração inicial do Rádio/ON AIR criada (desabilitada).");
+}

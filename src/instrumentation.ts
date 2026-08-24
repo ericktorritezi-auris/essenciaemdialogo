@@ -13,9 +13,12 @@ export async function register() {
       console.error("[bootstrap] falha ao garantir admin inicial", error);
     });
 
-    const { ensureHomeSectionsSeeded, ensureNavigationSeeded, ensurePlatformsSeeded } = await import(
-      "@/lib/content/seed-defaults"
-    );
+    const {
+      ensureHomeSectionsSeeded,
+      ensureNavigationSeeded,
+      ensurePlatformsSeeded,
+      ensureRadioConfigurationSeeded,
+    } = await import("@/lib/content/seed-defaults");
     await ensureHomeSectionsSeeded().catch((error) => {
       console.error("[seed] falha ao garantir seções da Home", error);
     });
@@ -24,6 +27,9 @@ export async function register() {
     });
     await ensurePlatformsSeeded().catch((error) => {
       console.error("[seed] falha ao garantir plataformas padrão", error);
+    });
+    await ensureRadioConfigurationSeeded().catch((error) => {
+      console.error("[seed] falha ao garantir configuração do Rádio", error);
     });
   }
 }
