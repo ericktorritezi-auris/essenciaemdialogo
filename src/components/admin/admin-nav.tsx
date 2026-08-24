@@ -4,10 +4,12 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/home", label: "Home" },
   { href: "/admin/menu", label: "Menu" },
+  { href: "/admin/episodes", label: "Episódios" },
   { href: "/admin/articles", label: "Artigos" },
   { href: "/admin/news", label: "Notícias" },
   { href: "/admin/events", label: "Eventos" },
   { href: "/admin/media", label: "Mídia" },
+  { href: "/admin/platforms", label: "Plataformas" },
 ];
 
 export function AdminNav() {

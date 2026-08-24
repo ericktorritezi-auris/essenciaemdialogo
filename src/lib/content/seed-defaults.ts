@@ -113,3 +113,31 @@ export async function ensureNavigationSeeded(): Promise<void> {
 
   console.log(`[seed] ${DEFAULT_NAV_ITEMS.length} item(ns) de menu criado(s) com valores padrão.`);
 }
+
+interface DefaultPlatform {
+  key: string;
+  name: string;
+}
+
+const DEFAULT_PLATFORMS: DefaultPlatform[] = [
+  { key: "spotify", name: "Spotify" },
+  { key: "youtube", name: "YouTube" },
+  { key: "apple_podcasts", name: "Apple Podcasts" },
+];
+
+/**
+ * Plataformas de distribuição do podcast — extensível (Seção 11 do
+ * Prompt Mestre): o admin pode ativar/desativar ou adicionar outras em
+ * `/admin/platforms`, este seed só garante as três mais comuns já
+ * existindo, desativadas até o admin confirmar os links reais.
+ */
+export async function ensurePlatformsSeeded(): Promise<void> {
+  const count = await prisma.platform.count();
+  if (count > 0) return;
+
+  await prisma.platform.createMany({
+    data: DEFAULT_PLATFORMS.map((p, index) => ({ ...p, active: false, order: index })),
+  });
+
+  console.log(`[seed] ${DEFAULT_PLATFORMS.length} plataforma(s) criada(s) com valores padrão.`);
+}

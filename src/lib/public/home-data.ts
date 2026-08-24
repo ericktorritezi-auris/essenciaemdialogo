@@ -87,6 +87,49 @@ export async function getActivePlatforms() {
   return prisma.platform.findMany({ where: { active: true }, orderBy: { order: "asc" } });
 }
 
+export async function getPublishedEpisodes(limit?: number) {
+  return prisma.episode.findMany({
+    where: { status: "PUBLISHED", deletedAt: null },
+    orderBy: { publishedAt: "desc" },
+    ...(limit ? { take: limit } : {}),
+  });
+}
+
+export async function getEpisodeBySlug(slug: string) {
+  return prisma.episode.findFirst({
+    where: { slug, status: "PUBLISHED", deletedAt: null },
+    include: { platformLinks: { include: { platform: true } } },
+  });
+}
+
+/**
+ * Episódio anterior/próximo — ordenados por `publishedAt` (Seção 4 do
+ * Prompt Mestre: navegação entre episódios na página individual).
+ */
+export async function getAdjacentEpisodes(publishedAt: Date, currentId: string) {
+  const [previous, next] = await Promise.all([
+    prisma.episode.findFirst({
+      where: { status: "PUBLISHED", deletedAt: null, publishedAt: { lt: publishedAt }, id: { not: currentId } },
+      orderBy: { publishedAt: "desc" },
+      select: { slug: true, title: true },
+    }),
+    prisma.episode.findFirst({
+      where: { status: "PUBLISHED", deletedAt: null, publishedAt: { gt: publishedAt }, id: { not: currentId } },
+      orderBy: { publishedAt: "asc" },
+      select: { slug: true, title: true },
+    }),
+  ]);
+  return { previous, next };
+}
+
+export async function getRelatedEpisodes(currentId: string, limit = 3) {
+  return prisma.episode.findMany({
+    where: { status: "PUBLISHED", deletedAt: null, id: { not: currentId } },
+    orderBy: { publishedAt: "desc" },
+    take: limit,
+  });
+}
+
 export async function getMediaUrlMap(mediaIds: (string | null)[]): Promise<Map<string, string>> {
   const ids = [...new Set(mediaIds.filter((id): id is string => !!id))];
   if (ids.length === 0) return new Map();

@@ -13,7 +13,7 @@ export async function register() {
       console.error("[bootstrap] falha ao garantir admin inicial", error);
     });
 
-    const { ensureHomeSectionsSeeded, ensureNavigationSeeded } = await import(
+    const { ensureHomeSectionsSeeded, ensureNavigationSeeded, ensurePlatformsSeeded } = await import(
       "@/lib/content/seed-defaults"
     );
     await ensureHomeSectionsSeeded().catch((error) => {
@@ -21,6 +21,9 @@ export async function register() {
     });
     await ensureNavigationSeeded().catch((error) => {
       console.error("[seed] falha ao garantir menu padrão", error);
+    });
+    await ensurePlatformsSeeded().catch((error) => {
+      console.error("[seed] falha ao garantir plataformas padrão", error);
     });
   }
 }

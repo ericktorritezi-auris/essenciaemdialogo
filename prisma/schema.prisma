@@ -188,6 +188,7 @@ model Media {
 
 model Platform {
   id     String  @id @default(uuid())
+  key    String  @unique // identificador estável: "spotify", "youtube", "apple_podcasts"...
   name   String
   icon   String?
   active Boolean @default(true)

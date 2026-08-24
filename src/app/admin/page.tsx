@@ -13,8 +13,10 @@ export default async function AdminDashboardPage() {
   if (!user) return null;
 
   const isOwn = user.role === "COLLABORATOR" ? { authorId: user.id } : {};
+  const isOwnEpisode = user.role === "COLLABORATOR" ? { createdBy: user.id } : {};
 
-  const [articleCount, newsCount, eventCount, mediaCount, inReviewCount] = await Promise.all([
+  const [episodeCount, articleCount, newsCount, eventCount, mediaCount, inReviewCount] = await Promise.all([
+    prisma.episode.count({ where: { deletedAt: null, ...isOwnEpisode } }),
     prisma.article.count({ where: { deletedAt: null, ...isOwn } }),
     prisma.news.count({ where: { deletedAt: null, ...isOwn } }),
     prisma.event.count({ where: { deletedAt: null, ...isOwn } }),
@@ -25,6 +27,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   const cards = [
+    { label: "Episódios", count: episodeCount, href: "/admin/episodes" },
     { label: "Artigos", count: articleCount, href: "/admin/articles" },
     { label: "Notícias", count: newsCount, href: "/admin/news" },
     { label: "Eventos", count: eventCount, href: "/admin/events" },
@@ -44,7 +47,7 @@ export default async function AdminDashboardPage() {
         </p>
       )}
 
-      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {cards.map((card) => (
           <Link
             key={card.href}
