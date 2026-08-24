@@ -44,6 +44,11 @@ model User {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
 
+  // Fluxo de "primeiro acesso" — define a senha sem trafegar senha real
+  // pelo endpoint de bootstrap (Seção 8 do Plano Técnico).
+  passwordSetTokenHash      String?
+  passwordSetTokenExpiresAt DateTime?
+
   articles   Article[] @relation("ArticleAuthor")
   news       News[]    @relation("NewsAuthor")
   auditLogs  AuditLog[]

@@ -8,6 +8,11 @@
  */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    // Necessário para src/instrumentation.ts rodar no boot do servidor
+    // (usado para aplicar o auto-bootstrap do admin — ver docs/AUTHORIZATION.md).
+    instrumentationHook: true,
+  },
   images: {
     remotePatterns: [
       // Placeholder — domínio real do bucket R2 entra aqui na Sprint 2.

@@ -10,8 +10,8 @@ Referência completa de `.env.example`. Nenhum valor real é versionado — semp
 | `DATABASE_URL` | Sim | Connection string do PostgreSQL (Railway injeta automaticamente) |
 | `SESSION_SECRET` | Sim | Segredo de assinatura do cookie de sessão |
 | `AUTH_SECRET` | Sim | Segredo geral de autenticação |
-| `ADMIN_BOOTSTRAP_EMAIL` | Sim (1ª execução) | E-mail do administrador principal, usado apenas na criação inicial |
-| `ADMIN_BOOTSTRAP_SECRET` | Sim (1ª execução) | Segredo de uso único que autoriza o bootstrap do admin |
+| `ADMIN_BOOTSTRAP_EMAIL` | Sim | E-mail do administrador principal — o auto-bootstrap no boot do servidor cria o admin com este e-mail se nenhum admin existir ainda (ver `docs/AUTHORIZATION.md`) |
+| `ADMIN_BOOTSTRAP_SECRET` | Não | **Não usado pelo fluxo atual** (o bootstrap agora é automático no boot do servidor, sem endpoint manual). Pode deixar configurado sem problema — é inofensivo, só não tem mais efeito |
 | `STORAGE_PROVIDER` | Sim | `r2` (Cloudflare R2, provedor aprovado) |
 | `STORAGE_BUCKET` | Sim | Nome do bucket |
 | `STORAGE_ACCESS_KEY_ID` / `STORAGE_SECRET_ACCESS_KEY` | Sim | Credenciais do bucket — escopo mínimo necessário |
@@ -25,5 +25,5 @@ Referência completa de `.env.example`. Nenhum valor real é versionado — semp
 
 - Nunca commitar `.env`.
 - Nunca logar o valor de nenhuma variável desta lista.
-- `ADMIN_BOOTSTRAP_SECRET` só tem efeito uma vez — depois do primeiro bootstrap, é seguro (mas não obrigatório) removê-lo/rotacioná-lo.
+- `ADMIN_BOOTSTRAP_SECRET` não tem mais efeito nenhum no fluxo atual (ver `docs/AUTHORIZATION.md`) — pode remover essa variável do Railway com segurança, se quiser.
 - Em produção, todas as variáveis vivem no painel do Railway, nunca em arquivo versionado.
