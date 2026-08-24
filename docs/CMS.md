@@ -47,7 +47,7 @@ Exclusão verifica uso antes de apagar (Seção 10 do Plano Técnico) — se a i
 
 ## O que ainda falta (fora do escopo desta sprint)
 
-- Editor visual do campo de descrição completa dos Episódios (continua textarea simples — ver nota acima).
+- Editor visual do campo de descrição completa dos Episódios — **agendado para a Sprint 6** (mesmo componente `RichTextEditor` já pronto, só falta trocar o textarea do editor de Episódio por ele).
 - Edição de slug depois de criado + geração automática de `Redirect`.
 - Filtros de status/busca nas telas de listagem (hoje mostram tudo).
 - Lixeira com restauração (existe soft delete no banco, mas ainda não há UI para listar/restaurar excluídos).
