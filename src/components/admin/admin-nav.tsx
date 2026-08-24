@@ -10,6 +10,8 @@ const NAV_ITEMS = [
   { href: "/admin/events", label: "Eventos" },
   { href: "/admin/media", label: "Mídia" },
   { href: "/admin/platforms", label: "Plataformas" },
+  { href: "/admin/radio", label: "Rádio" },
+  { href: "/admin/contact-submissions", label: "Perguntas" },
 ];
 
 export function AdminNav() {

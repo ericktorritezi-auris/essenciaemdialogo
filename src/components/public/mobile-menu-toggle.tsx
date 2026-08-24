@@ -64,6 +64,15 @@ export function MobileMenuToggle({ items }: { items: NavItem[] }) {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="/busca"
+                onClick={() => setOpen(false)}
+                className="block py-2 text-lg text-ivory/90 hover:text-terracotta"
+              >
+                Buscar
+              </Link>
+            </li>
           </ul>
         </nav>
       )}
