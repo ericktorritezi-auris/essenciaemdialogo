@@ -12,5 +12,15 @@ export async function register() {
       // Nunca derruba o boot do servidor por causa disso — só alerta.
       console.error("[bootstrap] falha ao garantir admin inicial", error);
     });
+
+    const { ensureHomeSectionsSeeded, ensureNavigationSeeded } = await import(
+      "@/lib/content/seed-defaults"
+    );
+    await ensureHomeSectionsSeeded().catch((error) => {
+      console.error("[seed] falha ao garantir seções da Home", error);
+    });
+    await ensureNavigationSeeded().catch((error) => {
+      console.error("[seed] falha ao garantir menu padrão", error);
+    });
   }
 }
