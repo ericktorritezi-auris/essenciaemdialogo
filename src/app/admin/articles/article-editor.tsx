@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { apiFetch, ApiError } from "@/lib/api-client/fetch";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { MediaPicker } from "@/components/admin/media-picker";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 interface Article {
   id: string;
@@ -152,19 +153,12 @@ export function ArticleEditor({ articleId }: { articleId?: string }) {
           />
         </label>
 
-        <label className="block text-sm text-ivory/80">
-          Conteúdo
-          <textarea
-            required
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={14}
-            className="mt-1 w-full rounded border border-bronze/30 bg-charcoal px-3 py-2 text-ivory font-mono text-sm"
-          />
-          <span className="mt-1 block text-xs text-ivory/40">
-            Aceita HTML básico (negrito, links, listas, títulos H2-H4). É filtrado no servidor antes de salvar.
-          </span>
-        </label>
+        <div>
+          <p className="block text-sm text-ivory/80">Conteúdo</p>
+          <div className="mt-1">
+            <RichTextEditor value={content} onChange={setContent} />
+          </div>
+        </div>
 
         {!isNew && <MediaPicker value={coverMediaId} onChange={setCoverMediaId} />}
 

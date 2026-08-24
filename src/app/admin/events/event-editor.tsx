@@ -6,6 +6,7 @@ import { fromZonedTime, toZonedTime, format } from "date-fns-tz";
 import { apiFetch, ApiError } from "@/lib/api-client/fetch";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { MediaPicker } from "@/components/admin/media-picker";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { BUSINESS_TIMEZONE } from "@/lib/time";
 
 interface EventData {
@@ -169,11 +170,12 @@ export function EventEditor({ eventId }: { eventId?: string }) {
           </select>
         </label>
 
-        <label className="block text-sm text-ivory/80">
-          Descrição
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6}
-            className="mt-1 w-full rounded border border-bronze/30 bg-charcoal px-3 py-2 text-ivory" />
-        </label>
+        <div>
+          <p className="block text-sm text-ivory/80">Descrição</p>
+          <div className="mt-1">
+            <RichTextEditor value={description} onChange={setDescription} />
+          </div>
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <label className="block text-sm text-ivory/80">

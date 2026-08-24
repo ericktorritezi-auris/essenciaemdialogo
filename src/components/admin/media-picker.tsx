@@ -14,7 +14,7 @@ export function MediaPicker({
   onChange,
 }: {
   value: string | null;
-  onChange: (mediaId: string | null) => void;
+  onChange: (mediaId: string | null, media?: MediaItem) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [media, setMedia] = useState<MediaItem[] | null>(null);
@@ -82,7 +82,7 @@ export function MediaPicker({
               src={item.url}
               alt={item.altText ?? ""}
               onClick={() => {
-                onChange(item.id);
+                onChange(item.id, item);
                 setOpen(false);
               }}
               className="aspect-square cursor-pointer rounded object-cover ring-1 ring-bronze/20 hover:ring-terracotta"

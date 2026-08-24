@@ -1,12 +1,14 @@
-import { getLatestReleases, getMediaUrlMap } from "@/lib/public/home-data";
+import { getLatestReleases, getMediaUrlMap, type LatestReleaseItem } from "@/lib/public/home-data";
 
 const KIND_LABELS: Record<string, string> = {
+  EPISODE: "Episódio",
   ARTICLE: "Artigo",
   NEWS: "Notícia",
   EVENT: "Evento",
 };
 
 const KIND_HREF_PREFIX: Record<string, string> = {
+  EPISODE: "/episodios",
   ARTICLE: "/artigos",
   NEWS: "/noticias",
   EVENT: "/eventos",
@@ -19,7 +21,7 @@ export async function LatestReleasesSection() {
   // corrente — nunca renderiza um bloco vazio (Seção 11 do Prompt Mestre).
   if (items.length === 0) return null;
 
-  const mediaMap = await getMediaUrlMap(items.map((i) => i.coverMediaId));
+  const mediaMap = await getMediaUrlMap(items.map((i: LatestReleaseItem) => i.coverMediaId));
 
   return (
     <section id="ultimos-lancamentos" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -29,7 +31,7 @@ export async function LatestReleasesSection() {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {items.map((item) => {
+        {items.map((item: LatestReleaseItem) => {
           const coverUrl = item.coverMediaId ? mediaMap.get(item.coverMediaId) : null;
           return (
             <a

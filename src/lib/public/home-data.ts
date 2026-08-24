@@ -26,6 +26,7 @@ export async function getEnabledNavigationItems() {
 }
 
 export type LatestReleaseItem =
+  | { kind: "EPISODE"; id: string; title: string; slug: string; publishedAt: Date; coverMediaId: string | null }
   | { kind: "ARTICLE"; id: string; title: string; slug: string; publishedAt: Date; coverMediaId: string | null }
   | { kind: "NEWS"; id: string; title: string; slug: string; publishedAt: Date; coverMediaId: string | null }
   | { kind: "EVENT"; id: string; title: string; slug: string; publishedAt: Date; coverMediaId: string | null };
@@ -33,15 +34,18 @@ export type LatestReleaseItem =
 /**
  * Agregação da seção "Últimos Lançamentos" — semana editorial corrente
  * (segunda→domingo, America/Sao_Paulo), por `publishedAt` (Seção 11 do
- * Prompt Mestre). Episódios entram aqui a partir da Sprint 4 — por
- * enquanto a agregação já roda certa para Artigos/Notícias/Eventos, só
- * falta a quarta fonte.
+ * Prompt Mestre). Agora completa: Episódio + Artigo + Notícia + Evento
+ * (Episódio entrou na Sprint 5, depois do módulo de Episódios existir).
  */
 export async function getLatestReleases(): Promise<LatestReleaseItem[]> {
   const { start, end } = getCurrentEditorialWeekRange();
   const publishedInWeek = { status: "PUBLISHED" as const, publishedAt: { gte: start, lte: end } };
 
-  const [articles, news, events] = await Promise.all([
+  const [episodes, articles, news, events] = await Promise.all([
+    prisma.episode.findMany({
+      where: { ...publishedInWeek, deletedAt: null },
+      select: { id: true, title: true, slug: true, publishedAt: true, coverMediaId: true },
+    }),
     prisma.article.findMany({
       where: { ...publishedInWeek, deletedAt: null },
       select: { id: true, title: true, slug: true, publishedAt: true, coverMediaId: true },
@@ -59,6 +63,7 @@ export async function getLatestReleases(): Promise<LatestReleaseItem[]> {
   type RawItem = { id: string; title: string; slug: string; publishedAt: Date | null; coverMediaId: string | null };
 
   const items: LatestReleaseItem[] = [
+    ...episodes.map((ep: RawItem) => ({ kind: "EPISODE" as const, ...ep, publishedAt: ep.publishedAt! })),
     ...articles.map((a: RawItem) => ({ kind: "ARTICLE" as const, ...a, publishedAt: a.publishedAt! })),
     ...news.map((n: RawItem) => ({ kind: "NEWS" as const, ...n, publishedAt: n.publishedAt! })),
     ...events.map((e: RawItem) => ({ kind: "EVENT" as const, ...e, publishedAt: e.publishedAt! })),
@@ -85,6 +90,55 @@ export async function getFeaturedArticles(limit = 3) {
 
 export async function getActivePlatforms() {
   return prisma.platform.findMany({ where: { active: true }, orderBy: { order: "asc" } });
+}
+
+export async function getPublishedArticles() {
+  return prisma.article.findMany({
+    where: { status: "PUBLISHED", deletedAt: null },
+    orderBy: { publishedAt: "desc" },
+  });
+}
+
+export async function getArticleBySlug(slug: string) {
+  return prisma.article.findFirst({
+    where: { slug, status: "PUBLISHED", deletedAt: null },
+    include: { author: { select: { name: true } } },
+  });
+}
+
+export async function getRelatedArticles(currentId: string, limit = 3) {
+  return prisma.article.findMany({
+    where: { status: "PUBLISHED", deletedAt: null, id: { not: currentId } },
+    orderBy: { publishedAt: "desc" },
+    take: limit,
+  });
+}
+
+export async function getPublishedNewsList() {
+  return prisma.news.findMany({
+    where: { status: "PUBLISHED", deletedAt: null },
+    orderBy: { publishedAt: "desc" },
+  });
+}
+
+export async function getNewsBySlug(slug: string) {
+  return prisma.news.findFirst({
+    where: { slug, status: "PUBLISHED", deletedAt: null },
+    include: { author: { select: { name: true } } },
+  });
+}
+
+export async function getPublishedEventsList() {
+  return prisma.event.findMany({
+    where: { status: "PUBLISHED", deletedAt: null },
+    orderBy: { eventStartAt: "desc" },
+  });
+}
+
+export async function getEventBySlug(slug: string) {
+  return prisma.event.findFirst({
+    where: { slug, status: "PUBLISHED", deletedAt: null },
+  });
 }
 
 export async function getPublishedEpisodes(limit?: number) {
