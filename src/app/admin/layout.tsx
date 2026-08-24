@@ -7,7 +7,16 @@ import { AdminNav } from "@/components/admin/admin-nav";
  * Roda no servidor, revalida papel/status no banco a cada acesso —
  * o middleware (src/middleware.ts) só evita uma ida desnecessária ao
  * banco quando nem cookie existe; esta camada é quem decide de fato.
+ *
+ * `force-dynamic` explícito: toda a área /admin já seria dinâmica
+ * implicitamente (o uso de `cookies()` dentro de requireAnyRole força
+ * isso automaticamente no Next.js), mas deixamos explícito para não
+ * depender desse comportamento implícito se a autenticação mudar no
+ * futuro — nenhuma tela administrativa deve ser pré-gerada em build,
+ * já que todo o conteúdo depende do banco e de quem está logado.
  */
+export const dynamic = "force-dynamic";
+
 export default async function AdminLayout({
   children,
 }: {
