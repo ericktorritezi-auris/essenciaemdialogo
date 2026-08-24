@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, ForbiddenError, UnauthorizedError } from "@/lib/auth/rbac";
 import { logAudit } from "@/lib/audit";
@@ -41,7 +42,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     data: {
       ...(data.enabled !== undefined ? { enabled: data.enabled } : {}),
       ...(data.order !== undefined ? { order: data.order } : {}),
-      ...(data.content !== undefined ? { content: data.content } : {}),
+      ...(data.content !== undefined ? { content: data.content as Prisma.InputJsonValue } : {}),
     },
   });
 

@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { HOME_SECTION_KEYS, type HomeSectionKey } from "@/lib/content/home-sections";
 
@@ -65,14 +66,14 @@ export async function ensureHomeSectionsSeeded(): Promise<void> {
   if (missing.length === 0) return;
 
   await prisma.homeSection.createMany({
-    data: missing.map((key, index) => ({
+    data: missing.map((key) => ({
       key,
       // Seções que dependem de módulos ainda não construídos (Episódios
       // = Sprint 4) começam desabilitadas — evita espaço vazio no ar
       // até o conteúdo existir de verdade.
       enabled: key !== "FEATURED_EPISODE" && key !== "RECENT_EPISODES",
       order: HOME_SECTION_KEYS.indexOf(key),
-      content: DEFAULT_CONTENT[key] ?? {},
+      content: (DEFAULT_CONTENT[key] ?? {}) as Prisma.InputJsonValue,
     })),
   });
 
