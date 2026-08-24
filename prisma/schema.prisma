@@ -264,12 +264,10 @@ model SiteSetting {
   value Json
 }
 
-/**
- * Seções da Home, habilitáveis/reordenáveis pelo admin — nenhuma delas
- * hardcoded no código (Seção 3 do Prompt Mestre). `content` guarda o
- * texto editável específico de cada seção (título, corpo, CTA...),
- * livre por seção porque cada `key` tem um formato próprio.
- */
+// Seções da Home, habilitáveis/reordenáveis pelo admin — nenhuma delas
+// hardcoded no código (Seção 3 do Prompt Mestre). `content` guarda o
+// texto editável específico de cada seção (título, corpo, CTA...),
+// livre por seção porque cada `key` tem um formato próprio.
 model HomeSection {
   id        String   @id @default(uuid())
   key       String   @unique
@@ -279,10 +277,8 @@ model HomeSection {
   updatedAt DateTime @updatedAt
 }
 
-/**
- * Itens do menu principal — rótulo, ordem, ativação e destino editáveis
- * pelo admin (Seção 3/48 do Prompt Mestre), nunca hardcoded no header.
- */
+// Itens do menu principal — rótulo, ordem, ativação e destino editáveis
+// pelo admin (Seção 3/48 do Prompt Mestre), nunca hardcoded no header.
 model NavigationItem {
   id           String   @id @default(uuid())
   label        String
