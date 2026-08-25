@@ -20,6 +20,7 @@ export async function register() {
       ensureRadioConfigurationSeeded,
       ensureHostDetailsPatched,
       ensureCtaHrefsPatched,
+      ensureTestCollaboratorSeeded,
     } = await import("@/lib/content/seed-defaults");
     await ensureHomeSectionsSeeded().catch((error) => {
       console.error("[seed] falha ao garantir seções da Home", error);
@@ -38,6 +39,9 @@ export async function register() {
     });
     await ensureCtaHrefsPatched().catch((error) => {
       console.error("[seed] falha ao aplicar ctaHref padrão", error);
+    });
+    await ensureTestCollaboratorSeeded().catch((error) => {
+      console.error("[seed] falha ao criar colaborador de teste", error);
     });
   }
 }

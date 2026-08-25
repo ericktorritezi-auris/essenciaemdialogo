@@ -1,6 +1,9 @@
+import crypto from "node:crypto";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { HOME_SECTION_KEYS, type HomeSectionKey } from "@/lib/content/home-sections";
+import { hashPassword } from "@/lib/auth/password";
+import { logAudit } from "@/lib/audit";
 
 /**
  * Conteúdo textual inicial — é só um ponto de partida editável pelo
@@ -262,4 +265,60 @@ export async function ensureCtaHrefsPatched(): Promise<void> {
 
     console.log(`[seed] ctaHref padrão aplicado à seção ${key} (${href}).`);
   }
+}
+
+const TEST_COLLABORATOR_EMAIL = "colaborador.teste@essenciaemdialogo.com.br";
+
+/**
+ * Cria uma conta de Colaborador de teste, uma única vez — pedido
+ * explícito do Erick (Sprint 10) para validar o fluxo de RBAC com uma
+ * conta real, já que ainda não havia UI de gestão de usuários até
+ * agora. Idempotente: só cria se não existir NENHUM Colaborador ainda
+ * (se você já criou colaboradores reais pela UI, isso nunca dispara).
+ *
+ * É uma conta de teste comum, sem nada de especial — pode ser
+ * desativada ou removida a qualquer momento em /admin/users assim que
+ * não precisar mais dela.
+ */
+export async function ensureTestCollaboratorSeeded(): Promise<void> {
+  const anyCollaborator = await prisma.user.findFirst({ where: { role: "COLLABORATOR" } });
+  if (anyCollaborator) return;
+
+  const initialPassword = crypto.randomBytes(18).toString("base64url");
+
+  const collaborator = await prisma.user.create({
+    data: {
+      name: "Colaborador Teste",
+      email: TEST_COLLABORATOR_EMAIL,
+      role: "COLLABORATOR",
+      active: true,
+      passwordHash: await hashPassword(initialPassword),
+    },
+  });
+
+  await logAudit({
+    actorUserId: collaborator.id,
+    actorRole: "COLLABORATOR",
+    action: "TEST_COLLABORATOR_SEEDED",
+    entityType: "User",
+    entityId: collaborator.id,
+    entityLabel: collaborator.email,
+    metadata: { trigger: "server_startup", purpose: "Sprint 10 RBAC testing" },
+  });
+
+  console.log(
+    [
+      "",
+      "================================================================",
+      " COLABORADOR DE TESTE CRIADO — Essência em Diálogo (Sprint 10)",
+      "================================================================",
+      ` E-mail:  ${collaborator.email}`,
+      ` Senha:   ${initialPassword}`,
+      "",
+      " Conta de teste, sem nada de especial. Pode desativar ou remover",
+      " a qualquer momento em /admin/users.",
+      "================================================================",
+      "",
+    ].join("\n"),
+  );
 }

@@ -5,30 +5,49 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api-client/fetch";
 
-const NAV_ITEMS = [
+interface NavItem {
+  href: string;
+  label: string;
+  adminOnly?: boolean;
+}
+
+const NAV_ITEMS: NavItem[] = [
   { href: "/admin", label: "Dashboard" },
-  { href: "/admin/home", label: "Home" },
-  { href: "/admin/menu", label: "Menu" },
+  { href: "/admin/home", label: "Home", adminOnly: true },
+  { href: "/admin/menu", label: "Menu", adminOnly: true },
   { href: "/admin/episodes", label: "Episódios" },
   { href: "/admin/articles", label: "Artigos" },
   { href: "/admin/news", label: "Notícias" },
   { href: "/admin/events", label: "Eventos" },
   { href: "/admin/media", label: "Mídia" },
-  { href: "/admin/platforms", label: "Plataformas" },
-  { href: "/admin/radio", label: "Rádio" },
-  { href: "/admin/contact-submissions", label: "Perguntas" },
+  { href: "/admin/platforms", label: "Plataformas", adminOnly: true },
+  { href: "/admin/radio", label: "Rádio", adminOnly: true },
+  { href: "/admin/contact-submissions", label: "Perguntas", adminOnly: true },
+  { href: "/admin/users", label: "Usuários", adminOnly: true },
+  { href: "/admin/audit-log", label: "Logs", adminOnly: true },
 ];
 
 export function AdminNav() {
   const router = useRouter();
+  const [role, setRole] = useState<"ADMIN" | "COLLABORATOR" | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
+    apiFetch<{ role: "ADMIN" | "COLLABORATOR" }>("/api/admin/me")
+      .then((data) => setRole(data.role))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    // Só faz sentido buscar isso se o item "Perguntas" for aparecer
+    // (admin only) — evita uma chamada de API que só voltaria 403 para
+    // um Colaborador.
+    if (role !== "ADMIN") return;
     apiFetch<{ count: number }>("/api/admin/contact-submissions/unread-count")
       .then((data) => setUnreadCount(data.count))
-      .catch(() => {}); // não é crítico — badge só não aparece
-  }, []);
+      .catch(() => {});
+  }, [role]);
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -40,11 +59,13 @@ export function AdminNav() {
     }
   }
 
+  const visibleItems = NAV_ITEMS.filter((item) => !item.adminOnly || role === "ADMIN");
+
   return (
     <nav className="border-b border-bronze/20 bg-charcoal px-6 py-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <ul className="flex flex-wrap gap-6 text-sm">
-          {NAV_ITEMS.map((item) => (
+          {visibleItems.map((item) => (
             <li key={item.href}>
               <Link href={item.href} className="relative text-ivory/70 hover:text-terracotta">
                 {item.label}
