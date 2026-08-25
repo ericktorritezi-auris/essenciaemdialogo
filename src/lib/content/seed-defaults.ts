@@ -32,12 +32,16 @@ const DEFAULT_CONTENT: Partial<Record<HomeSectionKey, Record<string, unknown>>> 
         role: "Psicanalista e Psicoterapeuta Integrativo",
         photoMediaId: null,
         photoUrl: "/team/erick-torritezi.jpg",
+        bio:
+          "Psicanalista, Psicoterapeuta Integrativo e Master Hipnoterapeuta, especialista na transformação do comportamento humano. Membro da ABRAPH (Academia Brasileira de Psicoterapia Holística) e da ATH (Associação dos Terapeutas Holísticos), com raízes nos estudos da Logoterapia e especialização em Análises Comportamentais e Emocionais voltadas a desbloqueios de traumas, autoconhecimento, hábitos, crenças e valores. Membro da Sociedade Brasileira de Coaching e formado em Programação Neurolinguística e Inteligência Emocional. Com mais de 15 anos de experiência em treinamentos e liderança de equipes, é autor dos livros \"Vivendo GenuinaMENTE\" e \"Diálogo com o Criador\", e criador do Programa 4F de Desenvolvimento Humano e do Protocolo ESSÊNCIA.",
       },
       {
         name: "Iolanda Reis",
         role: "Terapeuta Ocupacional e Arteterapeuta Junguiana",
         photoMediaId: null,
         photoUrl: "/team/iolanda-reis.jpg",
+        bio:
+          "Terapeuta Ocupacional pós-graduada em Arteterapia Junguiana, com atuação na Clínica Bela Essência. Especializa-se em reabilitar a autonomia de pessoas de todas as idades diante de limitações ou incapacidades nas atividades diárias, com uma abordagem holística e empática que integra terapia ocupacional e arteterapia. Suas intervenções ajudam a superar alterações cognitivas, afetivas, perceptivas e psicomotoras — resultantes de causas genéticas, traumáticas ou decorrentes do abuso de substâncias. Está sempre em busca de novas qualificações e técnicas para aliviar o sofrimento e a angústia de seus pacientes, unindo ciência e arte numa experiência terapêutica que melhora a capacidade funcional e enriquece a vida emocional e espiritual de quem atende.",
       },
     ],
   },
@@ -170,6 +174,7 @@ interface HostContent {
   role?: string;
   photoMediaId?: string | null;
   photoUrl?: string;
+  bio?: string;
 }
 
 const OFFICIAL_HOST_PHOTOS: Record<string, string> = {
@@ -177,14 +182,21 @@ const OFFICIAL_HOST_PHOTOS: Record<string, string> = {
   "Iolanda Reis": "/team/iolanda-reis.jpg",
 };
 
+const OFFICIAL_HOST_BIOS: Record<string, string> = {
+  "Erick Torritezi":
+    "Psicanalista, Psicoterapeuta Integrativo e Master Hipnoterapeuta, especialista na transformação do comportamento humano. Membro da ABRAPH (Academia Brasileira de Psicoterapia Holística) e da ATH (Associação dos Terapeutas Holísticos), com raízes nos estudos da Logoterapia e especialização em Análises Comportamentais e Emocionais voltadas a desbloqueios de traumas, autoconhecimento, hábitos, crenças e valores. Membro da Sociedade Brasileira de Coaching e formado em Programação Neurolinguística e Inteligência Emocional. Com mais de 15 anos de experiência em treinamentos e liderança de equipes, é autor dos livros \"Vivendo GenuinaMENTE\" e \"Diálogo com o Criador\", e criador do Programa 4F de Desenvolvimento Humano e do Protocolo ESSÊNCIA.",
+  "Iolanda Reis":
+    "Terapeuta Ocupacional pós-graduada em Arteterapia Junguiana, com atuação na Clínica Bela Essência. Especializa-se em reabilitar a autonomia de pessoas de todas as idades diante de limitações ou incapacidades nas atividades diárias, com uma abordagem holística e empática que integra terapia ocupacional e arteterapia. Suas intervenções ajudam a superar alterações cognitivas, afetivas, perceptivas e psicomotoras — resultantes de causas genéticas, traumáticas ou decorrentes do abuso de substâncias. Está sempre em busca de novas qualificações e técnicas para aliviar o sofrimento e a angústia de seus pacientes, unindo ciência e arte numa experiência terapêutica que melhora a capacidade funcional e enriquece a vida emocional e espiritual de quem atende.",
+};
+
 /**
  * Ajuste pontual (Sprint 7 — diagramação): instalações que já tinham a
- * seção HOSTS criada antes das fotos oficiais existirem como asset do
- * projeto ganham o `photoUrl` automaticamente, uma única vez — sem
- * sobrescrever nome/cargo se o admin já tiver editado esse texto.
- * Idempotente: só age em hosts que ainda não têm nenhuma foto definida.
+ * seção HOSTS criada antes das fotos/biografias oficiais existirem
+ * ganham `photoUrl` e `bio` automaticamente, uma única vez — sem
+ * sobrescrever nome/cargo/bio se o admin já tiver editado esse texto.
+ * Idempotente: só age no que ainda está vazio.
  */
-export async function ensureHostPhotosPatched(): Promise<void> {
+export async function ensureHostDetailsPatched(): Promise<void> {
   const section = await prisma.homeSection.findUnique({ where: { key: "HOSTS" } });
   if (!section) return;
 
@@ -194,11 +206,20 @@ export async function ensureHostPhotosPatched(): Promise<void> {
 
   let changed = false;
   const patched = hosts.map((host) => {
-    if (host.photoUrl || host.photoMediaId) return host; // já tem foto — não mexe
     const officialPhoto = host.name ? OFFICIAL_HOST_PHOTOS[host.name] : undefined;
-    if (!officialPhoto) return host;
+    const officialBio = host.name ? OFFICIAL_HOST_BIOS[host.name] : undefined;
+
+    const needsPhoto = !host.photoUrl && !host.photoMediaId && officialPhoto;
+    const needsBio = !host.bio && officialBio;
+
+    if (!needsPhoto && !needsBio) return host;
+
     changed = true;
-    return { ...host, photoUrl: officialPhoto };
+    return {
+      ...host,
+      ...(needsPhoto ? { photoUrl: officialPhoto } : {}),
+      ...(needsBio ? { bio: officialBio } : {}),
+    };
   });
 
   if (!changed) return;
@@ -208,5 +229,5 @@ export async function ensureHostPhotosPatched(): Promise<void> {
     data: { content: { ...content, hosts: patched } as unknown as Prisma.InputJsonValue },
   });
 
-  console.log("[seed] fotos oficiais dos apresentadores aplicadas à seção Apresentadores.");
+  console.log("[seed] fotos/biografias oficiais dos apresentadores aplicadas à seção Apresentadores.");
 }

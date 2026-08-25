@@ -18,6 +18,20 @@ export async function getEnabledHomeSections(): Promise<HomeSectionData[]> {
   }));
 }
 
+/**
+ * Busca o conteúdo de UMA seção específica, independente de estar
+ * habilitada na Home — usado por páginas próprias (ex.: /quem-somos)
+ * que reaproveitam texto de uma seção (Apresentadores, Sobre) mesmo
+ * que o admin tenha desativado a versão resumida da Home.
+ */
+export async function getHomeSectionContent(
+  key: HomeSectionKey,
+): Promise<Record<string, unknown> | null> {
+  const section = await prisma.homeSection.findUnique({ where: { key } });
+  if (!section) return null;
+  return (section.content as Record<string, unknown>) ?? {};
+}
+
 export async function getEnabledNavigationItems() {
   return prisma.navigationItem.findMany({
     where: { enabled: true },
