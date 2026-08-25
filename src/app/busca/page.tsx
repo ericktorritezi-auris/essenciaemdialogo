@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { searchContent, getSearchResultHref } from "@/lib/public/search";
+import { buildMetadata } from "@/lib/public/seo";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Buscar",
+  path: "/busca",
+  noIndex: true,
+});
 
 const KIND_LABELS: Record<string, string> = {
   EPISODE: "Episódio",

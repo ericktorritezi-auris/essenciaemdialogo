@@ -1,13 +1,32 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getEpisodeBySlug, getAdjacentEpisodes, getRelatedEpisodes, getMediaUrlMap } from "@/lib/public/home-data";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 import { SpotifyPlayer } from "@/components/public/spotify-player";
+import { buildMetadata, getSiteUrl } from "@/lib/public/seo";
+import { JsonLd } from "@/components/public/json-ld";
 
 export const dynamic = "force-dynamic";
 
 interface EpisodePageProps {
   params: { slug: string };
+}
+
+export async function generateMetadata({ params }: EpisodePageProps): Promise<Metadata> {
+  const episode = await getEpisodeBySlug(params.slug);
+  if (!episode) return buildMetadata({ title: "Episódio não encontrado", path: `/episodios/${params.slug}`, noIndex: true });
+
+  const mediaMap = await getMediaUrlMap([episode.coverMediaId]);
+  const coverUrl = episode.coverMediaId ? mediaMap.get(episode.coverMediaId) : null;
+
+  return buildMetadata({
+    title: episode.seoTitle || episode.title,
+    description: episode.seoDescription || episode.shortDescription,
+    path: `/episodios/${episode.slug}`,
+    ogImageUrl: coverUrl,
+    type: "article",
+  });
 }
 
 interface PlatformLinkItem {
@@ -44,15 +63,33 @@ export default async function EpisodePage({ params }: EpisodePageProps) {
     ...relatedEpisodes.map((r: RelatedEpisodeItem) => r.coverMediaId),
   ]);
   const coverUrl = episode.coverMediaId ? mediaMap.get(episode.coverMediaId) : null;
+  const siteUrl = getSiteUrl();
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "PodcastEpisode",
+          name: episode.title,
+          description: episode.shortDescription ?? undefined,
+          url: `${siteUrl}/episodios/${episode.slug}`,
+          ...(coverUrl ? { image: coverUrl } : {}),
+          ...(episode.publishedAt ? { datePublished: episode.publishedAt.toISOString() } : {}),
+          ...(episode.duration ? { timeRequired: `PT${episode.duration}M` } : {}),
+          partOfSeries: {
+            "@type": "PodcastSeries",
+            name: "Essência em Diálogo",
+            url: siteUrl,
+          },
+        }}
+      />
       <SiteHeader />
       <main id="main-content" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-20">
         <div className="mx-auto aspect-square w-full max-w-sm overflow-hidden rounded-lg bg-petrol shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)] sm:mx-0">
           {coverUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+            <img src={coverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
           )}
         </div>
 
@@ -124,7 +161,7 @@ export default async function EpisodePage({ params }: EpisodePageProps) {
                     <div className="aspect-square bg-petrol">
                       {relCoverUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={relCoverUrl} alt="" className="h-full w-full object-cover" />
+                        <img src={relCoverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
                       )}
                     </div>
                     <p className="p-2.5 text-xs leading-snug text-ivory">{r.title}</p>

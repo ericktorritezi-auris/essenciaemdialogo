@@ -1,12 +1,31 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getNewsBySlug, getMediaUrlMap } from "@/lib/public/home-data";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
+import { buildMetadata, getSiteUrl } from "@/lib/public/seo";
+import { JsonLd } from "@/components/public/json-ld";
 
 export const dynamic = "force-dynamic";
 
 interface NewsPageProps {
   params: { slug: string };
+}
+
+export async function generateMetadata({ params }: NewsPageProps): Promise<Metadata> {
+  const news = await getNewsBySlug(params.slug);
+  if (!news) return buildMetadata({ title: "Notícia não encontrada", path: `/noticias/${params.slug}`, noIndex: true });
+
+  const mediaMap = await getMediaUrlMap([news.coverMediaId]);
+  const coverUrl = news.coverMediaId ? mediaMap.get(news.coverMediaId) : null;
+
+  return buildMetadata({
+    title: news.seoTitle || news.title,
+    description: news.seoDescription || news.summary,
+    path: `/noticias/${news.slug}`,
+    ogImageUrl: coverUrl,
+    type: "article",
+  });
 }
 
 export default async function NewsDetailPage({ params }: NewsPageProps) {
@@ -15,15 +34,29 @@ export default async function NewsDetailPage({ params }: NewsPageProps) {
 
   const mediaMap = await getMediaUrlMap([news.coverMediaId]);
   const coverUrl = news.coverMediaId ? mediaMap.get(news.coverMediaId) : null;
+  const siteUrl = getSiteUrl();
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "NewsArticle",
+          headline: news.title,
+          description: news.summary ?? undefined,
+          url: `${siteUrl}/noticias/${news.slug}`,
+          ...(coverUrl ? { image: coverUrl } : {}),
+          ...(news.publishedAt ? { datePublished: news.publishedAt.toISOString() } : {}),
+          author: { "@type": "Person", name: news.author.name },
+          publisher: { "@type": "Organization", name: "Essência em Diálogo", url: siteUrl },
+        }}
+      />
       <SiteHeader />
       <main id="main-content" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-20">
         {coverUrl && (
           <div className="aspect-video w-full overflow-hidden rounded-lg bg-petrol shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+            <img src={coverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
           </div>
         )}
 

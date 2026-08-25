@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { buildMetadata } from "@/lib/public/seo";
 import { getSpotifyEmbedUrl } from "@/lib/spotify";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Rádio / ON AIR",
+  description: "Ouça o Essência em Diálogo ao vivo.",
+  path: "/radio",
+});
 
 interface PlaylistItem {
   title: string;

@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { getPublishedEpisodes, getMediaUrlMap } from "@/lib/public/home-data";
+import { buildMetadata } from "@/lib/public/seo";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Episódios",
+  description: "Todos os episódios do podcast Essência em Diálogo — duas perspectivas em diálogo, semana a semana.",
+  path: "/episodios",
+});
 
 interface EpisodeListItem {
   id: string;
@@ -37,7 +45,7 @@ export default async function EpisodesPage() {
                 <div className="aspect-square bg-petrol">
                   {coverUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+                    <img src={coverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
                   )}
                 </div>
                 <div className="p-3.5">

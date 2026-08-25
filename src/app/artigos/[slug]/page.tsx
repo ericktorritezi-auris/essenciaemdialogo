@@ -1,7 +1,10 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getArticleBySlug, getRelatedArticles, getMediaUrlMap } from "@/lib/public/home-data";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
+import { buildMetadata, getSiteUrl } from "@/lib/public/seo";
+import { JsonLd } from "@/components/public/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +19,22 @@ interface RelatedItem {
   coverMediaId: string | null;
 }
 
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  const article = await getArticleBySlug(params.slug);
+  if (!article) return buildMetadata({ title: "Artigo não encontrado", path: `/artigos/${params.slug}`, noIndex: true });
+
+  const mediaMap = await getMediaUrlMap([article.coverMediaId]);
+  const coverUrl = article.coverMediaId ? mediaMap.get(article.coverMediaId) : null;
+
+  return buildMetadata({
+    title: article.seoTitle || article.title,
+    description: article.seoDescription || article.summary,
+    path: `/artigos/${article.slug}`,
+    ogImageUrl: coverUrl,
+    type: "article",
+  });
+}
+
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const article = await getArticleBySlug(params.slug);
   if (!article) notFound();
@@ -23,15 +42,29 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const related: RelatedItem[] = await getRelatedArticles(article.id);
   const mediaMap = await getMediaUrlMap([article.coverMediaId, ...related.map((r: RelatedItem) => r.coverMediaId)]);
   const coverUrl = article.coverMediaId ? mediaMap.get(article.coverMediaId) : null;
+  const siteUrl = getSiteUrl();
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: article.title,
+          description: article.summary ?? undefined,
+          url: `${siteUrl}/artigos/${article.slug}`,
+          ...(coverUrl ? { image: coverUrl } : {}),
+          ...(article.publishedAt ? { datePublished: article.publishedAt.toISOString() } : {}),
+          author: { "@type": "Person", name: article.author.name },
+          publisher: { "@type": "Organization", name: "Essência em Diálogo", url: siteUrl },
+        }}
+      />
       <SiteHeader />
       <main id="main-content" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-20">
         {coverUrl && (
           <div className="aspect-video w-full overflow-hidden rounded-lg bg-petrol shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+            <img src={coverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
           </div>
         )}
 
@@ -59,7 +92,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                     <div className="aspect-video bg-petrol">
                       {relCover && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={relCover} alt="" className="h-full w-full object-cover" />
+                        <img src={relCover} alt="" className="h-full w-full object-cover"  loading="lazy" />
                       )}
                     </div>
                     <p className="p-2.5 text-xs leading-snug text-ivory">{r.title}</p>

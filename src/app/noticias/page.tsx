@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { getPublishedNewsList, getMediaUrlMap } from "@/lib/public/home-data";
+import { buildMetadata } from "@/lib/public/seo";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Notícias",
+  description: "Acompanhamentos e coberturas relacionadas aos temas do podcast Essência em Diálogo.",
+  path: "/noticias",
+});
 
 interface NewsListItem {
   id: string;
@@ -35,7 +43,7 @@ export default async function NewsPage() {
                 <div className="aspect-video bg-petrol">
                   {coverUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+                    <img src={coverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
                   )}
                 </div>
                 <div className="p-5">

@@ -15,8 +15,8 @@
   --color-terracotta: #a5583a;     /* terracota controlado — CTA, destaque pontual */
 
   /* ===== Tipografia ===== */
-  --font-display: "Playfair Display", Georgia, serif;
-  --font-body: "Montserrat", system-ui, sans-serif;
+  --font-display: var(--font-display-loaded), Georgia, serif;
+  --font-body: var(--font-body-loaded), system-ui, sans-serif;
 
   /* ===== Radius ===== */
   --radius-sm: 4px;

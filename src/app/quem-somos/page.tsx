@@ -1,10 +1,19 @@
 import Image from "next/image";
+import type { Metadata } from "next";
 import { getHomeSectionContent, getMediaUrlMap } from "@/lib/public/home-data";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 import { WaveDivider } from "@/components/public/wave-divider";
+import { buildMetadata, getSiteUrl } from "@/lib/public/seo";
+import { JsonLd } from "@/components/public/json-ld";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Quem somos",
+  description: "Conheça Erick Torritezi e Iolanda Reis, apresentadores do podcast Essência em Diálogo.",
+  path: "/quem-somos",
+});
 
 interface Host {
   name: string;
@@ -27,9 +36,24 @@ export default async function QuemSomosPage() {
 
   const mediaIds = hosts.filter((h) => !h.photoUrl).map((h) => h.photoMediaId);
   const mediaMap = await getMediaUrlMap(mediaIds);
+  const siteUrl = getSiteUrl();
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Essência em Diálogo",
+          url: siteUrl,
+          member: hosts.map((h) => ({
+            "@type": "Person",
+            name: h.name,
+            jobTitle: h.role,
+            ...(h.bio ? { description: h.bio } : {}),
+          })),
+        }}
+      />
       <SiteHeader />
       <main id="main-content" className="mx-auto max-w-2xl px-4 py-20 sm:px-6">
         <h1 className="text-center font-display text-3xl text-ivory sm:text-4xl">Quem somos</h1>

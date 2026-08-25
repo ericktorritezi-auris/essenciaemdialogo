@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { getPublishedArticles, getMediaUrlMap } from "@/lib/public/home-data";
+import { buildMetadata } from "@/lib/public/seo";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Artigos",
+  description: "Reflexões escritas sobre autoconhecimento, emoções e relacionamentos.",
+  path: "/artigos",
+});
 
 interface ArticleListItem {
   id: string;
@@ -37,7 +45,7 @@ export default async function ArticlesPage() {
                 <div className="aspect-video bg-petrol">
                   {coverUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+                    <img src={coverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
                   )}
                 </div>
                 <div className="p-5">

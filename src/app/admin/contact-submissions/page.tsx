@@ -19,6 +19,13 @@ export default function AdminContactSubmissionsPage() {
     apiFetch<{ submissions: Submission[] }>("/api/admin/contact-submissions")
       .then((data) => setSubmissions(data.submissions))
       .catch((err) => setError(err.message));
+
+    // Zera o contador de não lidas — "tudo visto de uma vez" ao abrir
+    // esta tela, não por mensagem individual (Sprint 6/8).
+    apiFetch("/api/admin/contact-submissions/mark-viewed", { method: "POST" }).catch(() => {
+      // Silencioso — se isso falhar, o pior caso é o contador continuar
+      // mostrando um número que já foi visto, não é crítico.
+    });
   }, []);
 
   return (

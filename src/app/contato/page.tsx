@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import { ContactForm } from "./contact-form";
+import { buildMetadata } from "@/lib/public/seo";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Contato",
+  description: "Envie sua pergunta ou sugestão de tema para o podcast Essência em Diálogo.",
+  path: "/contato",
+  noIndex: true,
+});
 
 export default function ContactPage() {
   return (

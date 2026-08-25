@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { getPublishedEventsList } from "@/lib/public/home-data";
+import { buildMetadata } from "@/lib/public/seo";
 import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Eventos",
+  description: "Encontros, participações e experiências ao vivo do Essência em Diálogo.",
+  path: "/eventos",
+});
 
 interface EventListItem {
   id: string;
