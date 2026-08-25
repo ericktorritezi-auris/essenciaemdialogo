@@ -52,10 +52,12 @@ const DEFAULT_CONTENT: Partial<Record<HomeSectionKey, Record<string, unknown>>> 
     title: "Pergunta ao público",
     body: "Tem uma pergunta ou tema que gostaria de ver no próximo episódio? Fale com a gente.",
     ctaLabel: "Enviar pergunta",
+    ctaHref: "/contato",
   },
   FINAL_CTA: {
     title: "Aqui, ideias se encontram, perspectivas se expandem e consciência se transforma.",
     ctaLabel: "Ouvir agora",
+    ctaHref: "/episodios",
   },
 };
 
@@ -230,4 +232,34 @@ export async function ensureHostDetailsPatched(): Promise<void> {
   });
 
   console.log("[seed] fotos/biografias oficiais dos apresentadores aplicadas à seção Apresentadores.");
+}
+
+/**
+ * Ajuste pontual (Sprint 7, pós-entrega): AUDIENCE_QUESTION e FINAL_CTA
+ * foram seedadas em sprints anteriores com `ctaLabel` mas sem
+ * `ctaHref` — o botão existia mas não apontava para lugar nenhum
+ * (`#`). Preenche o destino padrão nas instalações já existentes, uma
+ * única vez, sem sobrescrever se o admin já tiver definido um ctaHref
+ * próprio.
+ */
+const DEFAULT_CTA_HREFS: Partial<Record<HomeSectionKey, string>> = {
+  AUDIENCE_QUESTION: "/contato",
+  FINAL_CTA: "/episodios",
+};
+
+export async function ensureCtaHrefsPatched(): Promise<void> {
+  for (const [key, href] of Object.entries(DEFAULT_CTA_HREFS)) {
+    const section = await prisma.homeSection.findUnique({ where: { key } });
+    if (!section) continue;
+
+    const content = (section.content as Record<string, unknown> | null) ?? {};
+    if (typeof content.ctaHref === "string" && content.ctaHref.length > 0) continue; // já definido
+
+    await prisma.homeSection.update({
+      where: { key },
+      data: { content: { ...content, ctaHref: href } as unknown as Prisma.InputJsonValue },
+    });
+
+    console.log(`[seed] ctaHref padrão aplicado à seção ${key} (${href}).`);
+  }
 }

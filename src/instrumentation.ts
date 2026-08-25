@@ -19,6 +19,7 @@ export async function register() {
       ensurePlatformsSeeded,
       ensureRadioConfigurationSeeded,
       ensureHostDetailsPatched,
+      ensureCtaHrefsPatched,
     } = await import("@/lib/content/seed-defaults");
     await ensureHomeSectionsSeeded().catch((error) => {
       console.error("[seed] falha ao garantir seções da Home", error);
@@ -34,6 +35,9 @@ export async function register() {
     });
     await ensureHostDetailsPatched().catch((error) => {
       console.error("[seed] falha ao aplicar fotos/biografias dos apresentadores", error);
+    });
+    await ensureCtaHrefsPatched().catch((error) => {
+      console.error("[seed] falha ao aplicar ctaHref padrão", error);
     });
   }
 }
