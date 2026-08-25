@@ -112,6 +112,20 @@ export function NewsEditor({ newsId }: { newsId?: string }) {
     }
   }
 
+  async function handleDelete() {
+    if (!newsId || !news) return;
+    if (!confirm(`Excluir "${news.title}"? Esta ação não pode ser desfeita pela interface.`)) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await apiFetch(`/api/admin/news/${newsId}`, { method: "DELETE" });
+      router.push("/admin/news");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erro ao excluir.");
+      setSaving(false);
+    }
+  }
+
   const transitions = news && role ? getAvailableTransitions(news.status, role) : [];
 
   return (
@@ -172,6 +186,15 @@ export function NewsEditor({ newsId }: { newsId?: string }) {
               {t.label}
             </button>
           ))}
+        </div>
+      )}
+
+      {!isNew && news && (
+        <div className="mt-6 border-t border-bronze/20 pt-6">
+          <button type="button" disabled={saving} onClick={handleDelete}
+            className="text-sm text-terracotta hover:underline disabled:opacity-60">
+            Excluir notícia
+          </button>
         </div>
       )}
     </main>

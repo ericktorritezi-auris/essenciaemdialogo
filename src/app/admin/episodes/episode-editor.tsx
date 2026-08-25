@@ -172,6 +172,20 @@ export function EpisodeEditor({ episodeId }: { episodeId?: string }) {
     }
   }
 
+  async function handleDelete() {
+    if (!episodeId || !episode) return;
+    if (!confirm(`Excluir "${episode.title}"? Esta ação não pode ser desfeita pela interface.`)) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await apiFetch(`/api/admin/episodes/${episodeId}`, { method: "DELETE" });
+      router.push("/admin/episodes");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erro ao excluir.");
+      setSaving(false);
+    }
+  }
+
   const transitions = episode && role ? getAvailableTransitions(episode.status, role) : [];
 
   return (
@@ -267,6 +281,15 @@ export function EpisodeEditor({ episodeId }: { episodeId?: string }) {
               {t.label}
             </button>
           ))}
+        </div>
+      )}
+
+      {!isNew && episode && (
+        <div className="mt-6 border-t border-bronze/20 pt-6">
+          <button type="button" disabled={saving} onClick={handleDelete}
+            className="text-sm text-terracotta hover:underline disabled:opacity-60">
+            Excluir episódio
+          </button>
         </div>
       )}
     </main>

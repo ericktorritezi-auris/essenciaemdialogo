@@ -112,6 +112,20 @@ export function ArticleEditor({ articleId }: { articleId?: string }) {
     }
   }
 
+  async function handleDelete() {
+    if (!articleId || !article) return;
+    if (!confirm(`Excluir "${article.title}"? Esta ação não pode ser desfeita pela interface.`)) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await apiFetch(`/api/admin/articles/${articleId}`, { method: "DELETE" });
+      router.push("/admin/articles");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erro ao excluir.");
+      setSaving(false);
+    }
+  }
+
   const transitions = article && role ? getAvailableTransitions(article.status, role) : [];
 
   return (
@@ -184,6 +198,19 @@ export function ArticleEditor({ articleId }: { articleId?: string }) {
               {t.label}
             </button>
           ))}
+        </div>
+      )}
+
+      {!isNew && article && (
+        <div className="mt-6 border-t border-bronze/20 pt-6">
+          <button
+            type="button"
+            disabled={saving}
+            onClick={handleDelete}
+            className="text-sm text-terracotta hover:underline disabled:opacity-60"
+          >
+            Excluir artigo
+          </button>
         </div>
       )}
     </main>

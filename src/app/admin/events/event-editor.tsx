@@ -143,6 +143,20 @@ export function EventEditor({ eventId }: { eventId?: string }) {
     }
   }
 
+  async function handleDelete() {
+    if (!eventId || !event) return;
+    if (!confirm(`Excluir "${event.title}"? Esta ação não pode ser desfeita pela interface.`)) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await apiFetch(`/api/admin/events/${eventId}`, { method: "DELETE" });
+      router.push("/admin/events");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erro ao excluir.");
+      setSaving(false);
+    }
+  }
+
   const transitions = event && role ? getAvailableTransitions(event.status, role) : [];
 
   return (
@@ -225,6 +239,15 @@ export function EventEditor({ eventId }: { eventId?: string }) {
               {t.label}
             </button>
           ))}
+        </div>
+      )}
+
+      {!isNew && event && (
+        <div className="mt-6 border-t border-bronze/20 pt-6">
+          <button type="button" disabled={saving} onClick={handleDelete}
+            className="text-sm text-terracotta hover:underline disabled:opacity-60">
+            Excluir evento
+          </button>
         </div>
       )}
     </main>
