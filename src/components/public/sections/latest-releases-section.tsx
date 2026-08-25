@@ -42,7 +42,7 @@ export async function LatestReleasesSection() {
               <div className="aspect-video bg-petrol">
                 {coverUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+                  <img src={coverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
                 )}
               </div>
               <div className="p-4">

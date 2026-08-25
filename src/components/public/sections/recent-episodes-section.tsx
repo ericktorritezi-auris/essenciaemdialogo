@@ -31,7 +31,7 @@ export async function RecentEpisodesSection({ content }: RecentEpisodesSectionPr
               <div className="aspect-square bg-petrol">
                 {coverUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+                  <img src={coverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
                 )}
               </div>
               <p className="p-3.5 text-sm leading-snug text-ivory">{episode.title}</p>

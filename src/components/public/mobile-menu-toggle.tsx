@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 interface NavItem {
@@ -12,20 +12,53 @@ interface NavItem {
 
 export function MobileMenuToggle({ items }: { items: NavItem[] }) {
   const [open, setOpen] = useState(false);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
 
-  // Fecha com Esc — acessibilidade básica de overlay (Seção 20).
+  // Fecha com Esc e devolve o foco ao botão que abriu o menu —
+  // acessibilidade de overlay (Seção 20).
   useEffect(() => {
     if (!open) return;
+
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleButtonRef.current?.focus();
+        return;
+      }
+
+      // Focus trap simples: Tab não deixa o foco escapar do overlay
+      // enquanto ele estiver aberto.
+      if (e.key === "Tab" && navRef.current) {
+        const focusable = navRef.current.querySelectorAll<HTMLElement>("a[href], button");
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!first || !last) return;
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     }
+
     document.addEventListener("keydown", handleKeyDown);
+
+    // Move o foco para o primeiro link ao abrir.
+    const firstLink = navRef.current?.querySelector<HTMLElement>("a[href]");
+    firstLink?.focus();
+
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [open]);
 
   return (
     <div className="md:hidden">
       <button
+        ref={toggleButtonRef}
         type="button"
         aria-expanded={open}
         aria-controls="mobile-menu"
@@ -46,6 +79,7 @@ export function MobileMenuToggle({ items }: { items: NavItem[] }) {
 
       {open && (
         <nav
+          ref={navRef}
           id="mobile-menu"
           aria-label="Menu principal (mobile)"
           className="fixed inset-x-0 top-[57px] z-[var(--z-overlay)] border-t border-bronze/20 bg-warm-black px-4 py-6"

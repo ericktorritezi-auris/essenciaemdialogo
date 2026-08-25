@@ -28,7 +28,7 @@ export async function FeaturedEpisodeSection({ content }: FeaturedEpisodeSection
         <div className="aspect-square bg-petrol sm:w-72 sm:shrink-0">
           {coverUrl && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={coverUrl} alt="" className="h-full w-full object-cover" />
+            <img src={coverUrl} alt="" className="h-full w-full object-cover"  loading="lazy" />
           )}
         </div>
         <div className="p-6 sm:py-8 sm:pr-8">
