@@ -6,7 +6,13 @@ import { getSiteUrl } from "@/lib/public/seo";
  * Sitemap gerado dinamicamente a partir do banco — nunca precisa ser
  * atualizado manualmente quando um conteúdo novo é publicado (Seção 20
  * do Prompt Mestre).
+ *
+ * `force-dynamic`: consulta o banco, então não pode ser pré-gerado em
+ * build time (banco não acessível no build — mesma causa raiz já
+ * corrigida na Home na Sprint 3; faltou aplicar aqui também).
  */
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
 
