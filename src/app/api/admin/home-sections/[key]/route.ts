@@ -42,7 +42,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     data: {
       ...(data.enabled !== undefined ? { enabled: data.enabled } : {}),
       ...(data.order !== undefined ? { order: data.order } : {}),
-      ...(data.content !== undefined ? { content: data.content as Prisma.InputJsonValue } : {}),
+      ...(data.content !== undefined ? { content: data.content as unknown as Prisma.InputJsonValue } : {}),
     },
   });
 

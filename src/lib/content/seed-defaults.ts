@@ -75,7 +75,7 @@ export async function ensureHomeSectionsSeeded(): Promise<void> {
       // até o conteúdo existir de verdade.
       enabled: key !== "FEATURED_EPISODE" && key !== "RECENT_EPISODES",
       order: HOME_SECTION_KEYS.indexOf(key),
-      content: (DEFAULT_CONTENT[key] ?? {}) as Prisma.InputJsonValue,
+      content: (DEFAULT_CONTENT[key] ?? {}) as unknown as Prisma.InputJsonValue,
     })),
   });
 
@@ -205,7 +205,7 @@ export async function ensureHostPhotosPatched(): Promise<void> {
 
   await prisma.homeSection.update({
     where: { key: "HOSTS" },
-    data: { content: { ...content, hosts: patched } as Prisma.InputJsonValue },
+    data: { content: { ...content, hosts: patched } as unknown as Prisma.InputJsonValue },
   });
 
   console.log("[seed] fotos oficiais dos apresentadores aplicadas à seção Apresentadores.");

@@ -62,7 +62,7 @@ export async function PATCH(request: NextRequest) {
       ...(data.description !== undefined
         ? { description: data.description ? sanitizePlainText(data.description) : null }
         : {}),
-      ...(data.content !== undefined ? { content: data.content as Prisma.InputJsonValue } : {}),
+      ...(data.content !== undefined ? { content: data.content as unknown as Prisma.InputJsonValue } : {}),
     },
   });
 
