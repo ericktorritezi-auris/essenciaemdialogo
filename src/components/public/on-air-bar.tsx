@@ -1,9 +1,5 @@
 import { prisma } from "@/lib/prisma";
-
-interface PlaylistItem {
-  title: string;
-  url: string;
-}
+import Link from "next/link";
 
 export async function OnAirBar() {
   const config = await prisma.radioConfiguration.findFirst();
@@ -18,14 +14,10 @@ export async function OnAirBar() {
         <span className="rounded bg-terracotta px-2 py-0.5 text-xs font-medium text-ivory">ON AIR</span>
         <span className="text-ivory/80">{config.title ?? "Rádio Essência em Diálogo"}</span>
 
-        {/* Spotify/externo: só um link — o player completo do Spotify
-            (152px) fica pesado demais para um cabeçalho fixo. Uma
-            página dedicada /radio com o embed completo é uma iteração
-            futura possível, se fizer sentido (ver docs/RADIO.md). */}
         {(config.mode === "spotify" || config.mode === "external") && typeof content.embedUrl === "string" && (
-          <a href={content.embedUrl} target="_blank" rel="noopener noreferrer" className="text-terracotta">
+          <Link href="/radio" className="text-terracotta">
             Ouvir agora
-          </a>
+          </Link>
         )}
 
         {config.mode === "own_audio" && typeof content.audioUrl === "string" && (
@@ -33,19 +25,9 @@ export async function OnAirBar() {
         )}
 
         {config.mode === "editorial_playlist" && Array.isArray(content.items) && (
-          <div className="flex gap-3">
-            {(content.items as PlaylistItem[]).slice(0, 3).map((item) => (
-              <a
-                key={item.url}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-terracotta"
-              >
-                {item.title}
-              </a>
-            ))}
-          </div>
+          <Link href="/radio" className="text-terracotta">
+            Ver playlist completa
+          </Link>
         )}
       </div>
     </div>

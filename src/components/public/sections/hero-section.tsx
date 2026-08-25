@@ -29,9 +29,9 @@ export async function HeroSection({ content }: HeroSectionProps) {
       <Image
         src="/brand/logo-icon.png"
         alt="Essência em Diálogo"
-        width={64}
-        height={64}
-        className="mx-auto h-14 w-14 opacity-90 sm:h-16 sm:w-16"
+        width={200}
+        height={200}
+        className="mx-auto h-24 w-24 opacity-95 sm:h-36 sm:w-36"
         priority
       />
 
