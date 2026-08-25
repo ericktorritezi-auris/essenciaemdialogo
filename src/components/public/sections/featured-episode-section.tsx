@@ -19,23 +19,24 @@ export async function FeaturedEpisodeSection({ content }: FeaturedEpisodeSection
   const coverUrl = episode.coverMediaId ? mediaMap.get(episode.coverMediaId) : null;
 
   return (
-    <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-      <h2 className="font-display text-2xl text-ivory">{title}</h2>
+    <section className="mx-auto max-w-4xl px-4 py-20 sm:px-6">
+      <h2 className="font-display text-2xl text-ivory sm:text-3xl">{title}</h2>
       <a
         href={`/episodios/${episode.slug}`}
-        className="mt-6 flex flex-col gap-6 overflow-hidden rounded border border-bronze/20 bg-charcoal sm:flex-row"
+        className="content-card mt-8 flex flex-col sm:flex-row"
       >
-        <div className="aspect-square bg-petrol sm:w-64 sm:shrink-0">
+        <div className="aspect-square bg-petrol sm:w-72 sm:shrink-0">
           {coverUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={coverUrl} alt="" className="h-full w-full object-cover" />
           )}
         </div>
-        <div className="p-4 sm:py-6 sm:pr-6">
-          <p className="text-lg text-ivory">{episode.title}</p>
+        <div className="p-6 sm:py-8 sm:pr-8">
+          <p className="font-display text-xl text-ivory">{episode.title}</p>
           {episode.shortDescription && (
-            <p className="mt-2 text-sm text-ivory/60">{episode.shortDescription}</p>
+            <p className="mt-3 text-sm leading-relaxed text-ivory/60">{episode.shortDescription}</p>
           )}
+          <span className="mt-5 inline-block text-sm text-terracotta">Ouvir episódio →</span>
         </div>
       </a>
     </section>

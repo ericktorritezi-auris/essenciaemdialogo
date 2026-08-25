@@ -15,27 +15,23 @@ export async function EditorialsSection({ content }: EditorialsSectionProps) {
   const mediaMap = await getMediaUrlMap(articles.map((a: ArticleItem) => a.coverMediaId));
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <h2 className="font-display text-2xl text-ivory">{title}</h2>
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+    <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <h2 className="font-display text-2xl text-ivory sm:text-3xl">{title}</h2>
+      <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
         {articles.map((article: ArticleItem) => {
           const coverUrl = article.coverMediaId ? mediaMap.get(article.coverMediaId) : null;
           return (
-            <a
-              key={article.id}
-              href={`/artigos/${article.slug}`}
-              className="block overflow-hidden rounded border border-bronze/20 bg-charcoal"
-            >
+            <a key={article.id} href={`/artigos/${article.slug}`} className="content-card">
               <div className="aspect-video bg-petrol">
                 {coverUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={coverUrl} alt="" className="h-full w-full object-cover" />
                 )}
               </div>
-              <div className="p-4">
-                <p className="text-sm text-ivory">{article.title}</p>
+              <div className="p-5">
+                <p className="font-display text-base text-ivory">{article.title}</p>
                 {article.summary && (
-                  <p className="mt-1 line-clamp-2 text-xs text-ivory/50">{article.summary}</p>
+                  <p className="mt-2 line-clamp-2 text-sm text-ivory/50">{article.summary}</p>
                 )}
               </div>
             </a>
