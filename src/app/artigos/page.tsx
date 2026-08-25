@@ -19,32 +19,31 @@ export default async function ArticlesPage() {
   return (
     <>
       <SiteHeader />
-      <main id="main-content" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h1 className="font-display text-3xl text-ivory">Artigos</h1>
+      <main id="main-content" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <h1 className="font-display text-3xl text-ivory sm:text-4xl">Artigos</h1>
+        <p className="mt-3 max-w-lg text-ivory/60">
+          Reflexões escritas sobre autoconhecimento, emoções e relacionamentos.
+        </p>
 
         {articles.length === 0 && (
-          <p className="mt-8 text-ivory/50">Nenhum artigo publicado ainda.</p>
+          <p className="mt-12 text-ivory/50">Nenhum artigo publicado ainda.</p>
         )}
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {articles.map((article: ArticleListItem) => {
             const coverUrl = article.coverMediaId ? mediaMap.get(article.coverMediaId) : null;
             return (
-              <a
-                key={article.id}
-                href={`/artigos/${article.slug}`}
-                className="block overflow-hidden rounded border border-bronze/20 bg-charcoal"
-              >
+              <a key={article.id} href={`/artigos/${article.slug}`} className="content-card">
                 <div className="aspect-video bg-petrol">
                   {coverUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={coverUrl} alt="" className="h-full w-full object-cover" />
                   )}
                 </div>
-                <div className="p-4">
-                  <p className="text-sm text-ivory">{article.title}</p>
+                <div className="p-5">
+                  <p className="font-display text-base text-ivory">{article.title}</p>
                   {article.summary && (
-                    <p className="mt-1 line-clamp-2 text-xs text-ivory/50">{article.summary}</p>
+                    <p className="mt-2 line-clamp-2 text-sm text-ivory/50">{article.summary}</p>
                   )}
                 </div>
               </a>

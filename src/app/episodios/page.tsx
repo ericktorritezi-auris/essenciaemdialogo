@@ -19,32 +19,31 @@ export default async function EpisodesPage() {
   return (
     <>
       <SiteHeader />
-      <main id="main-content" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <h1 className="font-display text-3xl text-ivory">Episódios</h1>
+      <main id="main-content" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <h1 className="font-display text-3xl text-ivory sm:text-4xl">Episódios</h1>
+        <p className="mt-3 max-w-lg text-ivory/60">
+          Todas as conversas, semana a semana — duas perspectivas em diálogo.
+        </p>
 
         {episodes.length === 0 && (
-          <p className="mt-8 text-ivory/50">Nenhum episódio publicado ainda.</p>
+          <p className="mt-12 text-ivory/50">Nenhum episódio publicado ainda.</p>
         )}
 
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
           {episodes.map((episode: EpisodeListItem) => {
             const coverUrl = episode.coverMediaId ? mediaMap.get(episode.coverMediaId) : null;
             return (
-              <a
-                key={episode.id}
-                href={`/episodios/${episode.slug}`}
-                className="block overflow-hidden rounded border border-bronze/20 bg-charcoal"
-              >
+              <a key={episode.id} href={`/episodios/${episode.slug}`} className="content-card">
                 <div className="aspect-square bg-petrol">
                   {coverUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={coverUrl} alt="" className="h-full w-full object-cover" />
                   )}
                 </div>
-                <div className="p-3">
-                  <p className="text-sm text-ivory">{episode.title}</p>
+                <div className="p-3.5">
+                  <p className="text-sm leading-snug text-ivory">{episode.title}</p>
                   {episode.shortDescription && (
-                    <p className="mt-1 line-clamp-2 text-xs text-ivory/50">{episode.shortDescription}</p>
+                    <p className="mt-1.5 line-clamp-2 text-xs text-ivory/50">{episode.shortDescription}</p>
                   )}
                 </div>
               </a>

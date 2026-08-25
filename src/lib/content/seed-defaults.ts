@@ -31,11 +31,13 @@ const DEFAULT_CONTENT: Partial<Record<HomeSectionKey, Record<string, unknown>>> 
         name: "Erick Torritezi",
         role: "Psicanalista e Psicoterapeuta Integrativo",
         photoMediaId: null,
+        photoUrl: "/team/erick-torritezi.jpg",
       },
       {
         name: "Iolanda Reis",
         role: "Terapeuta Ocupacional e Arteterapeuta Junguiana",
         photoMediaId: null,
+        photoUrl: "/team/iolanda-reis.jpg",
       },
     ],
   },
@@ -161,4 +163,50 @@ export async function ensureRadioConfigurationSeeded(): Promise<void> {
   });
 
   console.log("[seed] configuração inicial do Rádio/ON AIR criada (desabilitada).");
+}
+
+interface HostContent {
+  name?: string;
+  role?: string;
+  photoMediaId?: string | null;
+  photoUrl?: string;
+}
+
+const OFFICIAL_HOST_PHOTOS: Record<string, string> = {
+  "Erick Torritezi": "/team/erick-torritezi.jpg",
+  "Iolanda Reis": "/team/iolanda-reis.jpg",
+};
+
+/**
+ * Ajuste pontual (Sprint 7 — diagramação): instalações que já tinham a
+ * seção HOSTS criada antes das fotos oficiais existirem como asset do
+ * projeto ganham o `photoUrl` automaticamente, uma única vez — sem
+ * sobrescrever nome/cargo se o admin já tiver editado esse texto.
+ * Idempotente: só age em hosts que ainda não têm nenhuma foto definida.
+ */
+export async function ensureHostPhotosPatched(): Promise<void> {
+  const section = await prisma.homeSection.findUnique({ where: { key: "HOSTS" } });
+  if (!section) return;
+
+  const content = (section.content as { title?: string; hosts?: HostContent[] } | null) ?? {};
+  const hosts = Array.isArray(content.hosts) ? content.hosts : [];
+  if (hosts.length === 0) return;
+
+  let changed = false;
+  const patched = hosts.map((host) => {
+    if (host.photoUrl || host.photoMediaId) return host; // já tem foto — não mexe
+    const officialPhoto = host.name ? OFFICIAL_HOST_PHOTOS[host.name] : undefined;
+    if (!officialPhoto) return host;
+    changed = true;
+    return { ...host, photoUrl: officialPhoto };
+  });
+
+  if (!changed) return;
+
+  await prisma.homeSection.update({
+    where: { key: "HOSTS" },
+    data: { content: { ...content, hosts: patched } as Prisma.InputJsonValue },
+  });
+
+  console.log("[seed] fotos oficiais dos apresentadores aplicadas à seção Apresentadores.");
 }

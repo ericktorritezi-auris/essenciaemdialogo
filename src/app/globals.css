@@ -30,3 +30,40 @@ h1, h2, h3, h4 {
   left: var(--space-2);
   top: var(--space-2);
 }
+
+/* Foco visível consistente em todo o site público (Seção 20 —
+   acessibilidade, navegação por teclado). */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-terracotta);
+  outline-offset: 2px;
+}
+
+/* Cartão de conteúdo compartilhado — usado nas seções da Home e nas
+   listagens públicas (Últimos Lançamentos, Editoriais, Episódios,
+   Artigos, Notícias). Um único lugar para o "clima" visual dos
+   cartões, em vez de repetir as mesmas classes em cada seção. */
+@layer components {
+  .content-card {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(169, 121, 63, 0.2);
+    background-color: var(--color-charcoal);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .content-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(165, 88, 58, 0.5);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .content-card:hover {
+      transform: none;
+    }
+  }
+}

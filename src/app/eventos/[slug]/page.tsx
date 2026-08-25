@@ -21,17 +21,17 @@ export default async function EventDetailPage({ params }: EventPageProps) {
   return (
     <>
       <SiteHeader />
-      <main id="main-content" className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+      <main id="main-content" className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-20">
         {coverUrl && (
-          <div className="aspect-video w-full overflow-hidden rounded bg-petrol">
+          <div className="aspect-video w-full overflow-hidden rounded-lg bg-petrol shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={coverUrl} alt="" className="h-full w-full object-cover" />
           </div>
         )}
 
-        <h1 className="mt-6 font-display text-2xl text-ivory sm:text-3xl">{event.title}</h1>
+        <h1 className="mt-7 font-display text-3xl leading-tight text-ivory sm:text-4xl">{event.title}</h1>
 
-        <dl className="mt-4 space-y-1 text-sm text-ivory/70">
+        <dl className="mt-5 space-y-1.5 rounded-lg border border-bronze/20 bg-charcoal p-5 text-sm text-ivory/70">
           <div>
             <dt className="inline text-bronze">Quando: </dt>
             <dd className="inline">
@@ -60,7 +60,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
 
         {event.description && (
           <div
-            className="mt-8 space-y-4 text-ivory/80 [&_a]:text-terracotta [&_ul]:list-disc [&_ul]:pl-5"
+            className="mt-8 space-y-4 text-[1.05rem] leading-relaxed text-ivory/80 [&_a]:text-terracotta [&_ul]:list-disc [&_ul]:pl-5"
             dangerouslySetInnerHTML={{ __html: event.description }}
           />
         )}
@@ -70,7 +70,7 @@ export default async function EventDetailPage({ params }: EventPageProps) {
             href={event.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-8 inline-block rounded bg-terracotta px-6 py-3 text-sm font-medium text-ivory"
+            className="mt-8 inline-block rounded bg-terracotta px-7 py-3.5 text-sm font-medium text-ivory transition-transform hover:-translate-y-0.5"
           >
             Mais informações / inscrição
           </a>

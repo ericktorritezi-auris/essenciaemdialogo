@@ -18,6 +18,7 @@ export async function register() {
       ensureNavigationSeeded,
       ensurePlatformsSeeded,
       ensureRadioConfigurationSeeded,
+      ensureHostPhotosPatched,
     } = await import("@/lib/content/seed-defaults");
     await ensureHomeSectionsSeeded().catch((error) => {
       console.error("[seed] falha ao garantir seções da Home", error);
@@ -30,6 +31,9 @@ export async function register() {
     });
     await ensureRadioConfigurationSeeded().catch((error) => {
       console.error("[seed] falha ao garantir configuração do Rádio", error);
+    });
+    await ensureHostPhotosPatched().catch((error) => {
+      console.error("[seed] falha ao aplicar fotos dos apresentadores", error);
     });
   }
 }
