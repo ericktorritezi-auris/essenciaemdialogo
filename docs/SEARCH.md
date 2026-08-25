@@ -18,11 +18,13 @@
 
 Visualização das perguntas recebidas em `/admin/contact-submissions` (admin only — não é conteúdo editorial de Colaborador).
 
-## Contador de mensagens não lidas — agendado para a Sprint 7
+## Contador de mensagens não lidas — entregue (Sprint 8)
 
-Decidido: as mensagens de contato ficam **só no painel** (`/admin/contact-submissions`), sem notificação por e-mail — mas o item de menu deve mostrar um contador destacado com o número de mensagens ainda não vistas (ex.: "2"), que **zera ao abrir a tela** (não é "marcar cada mensagem como lida" individualmente — é "tudo visto de uma vez" quando o admin visita `/admin/contact-submissions`).
+Comportamento: o item "Perguntas" no menu do admin mostra um badge destacado com o número de mensagens ainda não vistas, que **zera ao abrir a tela** (não é "marcar cada mensagem como lida" individualmente — é "tudo visto de uma vez").
 
-Implementação prevista (não feita ainda, só planejada): adicionar um campo tipo `lastContactSubmissionsViewedAt` no `User` (ou um registro equivalente por admin), comparar com `ContactSubmission.createdAt` mais recentes para calcular o total ainda não visto, expor num pequeno endpoint (`/api/admin/contact-submissions/unread-count`) que o `AdminNav` consulta para desenhar o badge, e atualizar esse timestamp quando `/admin/contact-submissions` for aberta.
+Implementação: `User.contactSubmissionsViewedAt` guarda quando o admin logado visitou `/admin/contact-submissions` pela última vez. `GET /api/admin/contact-submissions/unread-count` compara isso com `ContactSubmission.createdAt` para contar o que é mais novo. `POST /api/admin/contact-submissions/mark-viewed` atualiza o timestamp — chamado automaticamente ao abrir a tela.
+
+O contador é por administrador (cada um tem seu próprio `contactSubmissionsViewedAt`) — se houver mais de um admin no futuro, cada um vê "suas" mensagens não lidas de forma independente.
 
 ## Ação necessária depois do deploy
 

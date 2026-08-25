@@ -49,6 +49,10 @@ model User {
   passwordSetTokenHash      String?
   passwordSetTokenExpiresAt DateTime?
 
+  // Contador de perguntas não lidas (Sprint 8) — zera quando o admin
+  // visita /admin/contact-submissions, não por mensagem individual.
+  contactSubmissionsViewedAt DateTime?
+
   articles   Article[] @relation("ArticleAuthor")
   news       News[]    @relation("NewsAuthor")
   events     Event[]   @relation("EventAuthor")
