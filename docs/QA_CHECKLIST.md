@@ -4,6 +4,8 @@ Não tenho como rodar testes automatizados de ponta a ponta a partir daqui (sem 
 
 ## 🔴 Prioridade alta — RBAC (nunca testado com conta real de Colaborador)
 
+> **Resolvido na Sprint 10.** UI de gestão de usuários entregue (`/admin/users`), e uma conta de Colaborador de teste é criada automaticamente no boot (credenciais aparecem uma vez no log de deploy, mesmo padrão do bootstrap do admin — ver `docs/USER_MANAGEMENT.md`). Falta só o teste manual em si dos itens abaixo — eu não tenho como logar no site ao vivo e clicar pelos fluxos, então isso depende de alguém fazer esse passo.
+
 - [ ] Criar uma conta Colaborador (via banco direto, ou construir a UI de gestão de usuários — ainda não existe, ver `docs/AUTHORIZATION.md`)
 - [ ] Logar como Colaborador, confirmar que **não** aparecem no menu: Home, Menu, Plataformas, Rádio, Perguntas
 - [ ] Tentar acessar `/admin/home`, `/admin/platforms`, `/admin/radio` digitando a URL direto como Colaborador — deve dar 403/redirecionar, não mostrar a tela

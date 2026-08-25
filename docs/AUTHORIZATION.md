@@ -49,6 +49,6 @@ Em memória, por `IP + e-mail`, configurável via `RATE_LIMIT_WINDOW_MS`/`RATE_L
 
 ## O que ainda falta (fora do escopo desta sprint)
 
-- Tela de gestão de usuários (criar Colaborador, desativar, trocar papel, permitir que o próprio admin troque a senha pela UI) — entra junto com o CMS editorial (Sprint 2).
+- ~~Tela de gestão de usuários~~ — entregue na Sprint 10 (`/admin/users`). ~~Troca de senha pela UI~~ — entregue na Sprint 9 (`/admin/profile`).
 - Recuperação de senha "esqueci minha senha" para usuários já existentes — o endpoint `POST /api/auth/set-password` já existe e continua funcionando (usa os mesmos campos `passwordSetTokenHash`/`passwordSetTokenExpiresAt` do schema), só falta o endpoint que **gera** um novo token para um e-mail existente e o entrega (hoje isso exigiria e-mail transacional, ainda não configurado).
 - 2FA para o Admin — avaliado como melhoria futura, não bloqueante para V1 (Seção 8 do Plano Técnico).
