@@ -21,6 +21,7 @@ export async function register() {
       ensureHostDetailsPatched,
       ensureCtaHrefsPatched,
       ensureTestCollaboratorSeeded,
+      ensureLegalPagesSeeded,
     } = await import("@/lib/content/seed-defaults");
     await ensureHomeSectionsSeeded().catch((error) => {
       console.error("[seed] falha ao garantir seções da Home", error);
@@ -42,6 +43,9 @@ export async function register() {
     });
     await ensureTestCollaboratorSeeded().catch((error) => {
       console.error("[seed] falha ao criar colaborador de teste", error);
+    });
+    await ensureLegalPagesSeeded().catch((error) => {
+      console.error("[seed] falha ao criar páginas legais", error);
     });
   }
 }

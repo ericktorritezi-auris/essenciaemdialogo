@@ -322,3 +322,50 @@ export async function ensureTestCollaboratorSeeded(): Promise<void> {
     ].join("\n"),
   );
 }
+
+const DEFAULT_LEGAL_PAGES: Record<string, { title: string; content: string }> = {
+  privacy: {
+    title: "Política de Privacidade",
+    content:
+      "<h2>1. Quem somos</h2><p>O Essência em Diálogo é um podcast e site editorial. Esta política explica quais dados coletamos de quem visita ou interage com o site, e como esses dados são tratados.</p>" +
+      "<h2>2. Dados que coletamos</h2><ul>" +
+      "<li><strong>Formulário de contato:</strong> nome, e-mail e a pergunta/mensagem enviada, usados para eventual resposta ou uso editorial (de forma anônima) em episódios futuros.</li>" +
+      "<li><strong>Contas administrativas:</strong> nome e e-mail de administradores e colaboradores do site, usados para autenticação e controle de acesso.</li>" +
+      "<li><strong>Dados técnicos:</strong> endereço IP e informações de navegação são processados momentaneamente para limitar tentativas de envio abusivo (anti-spam) e para o funcionamento normal do servidor, sem finalidade de rastreamento de perfil.</li>" +
+      "</ul>" +
+      "<h2>3. Cookies</h2><p>Usamos um único cookie técnico, essencial para o funcionamento do site: um cookie de sessão criptografado, usado apenas para manter administradores e colaboradores autenticados no painel. Não usamos cookies de rastreamento ou publicidade.</p>" +
+      "<h2>4. Conteúdo de terceiros</h2><p>Este site pode incorporar players do Spotify e links para outras plataformas de distribuição de podcast. Essas plataformas têm suas próprias políticas de privacidade, que recomendamos consultar diretamente.</p>" +
+      "<h2>5. Onde os dados ficam armazenados</h2><p>Os dados são armazenados em infraestrutura de nuvem (Railway, para banco de dados, e Cloudflare, para arquivos de mídia), com práticas de segurança técnica descritas internamente pela equipe responsável pelo site.</p>" +
+      "<h2>6. Seus direitos (LGPD)</h2><p>Você pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento, entrando em contato pelo formulário do site.</p>" +
+      "<h2>7. Contato</h2><p>Dúvidas sobre esta política podem ser enviadas pelo formulário de contato do site.</p>",
+  },
+  terms: {
+    title: "Termos de Uso",
+    content:
+      "<h2>1. Aceitação</h2><p>Ao usar este site, você concorda com estes termos. Se não concordar, pedimos que não utilize o site.</p>" +
+      "<h2>2. Natureza do conteúdo</h2><p>O conteúdo deste site (episódios, artigos, notícias) tem finalidade educativa e reflexiva. <strong>Não substitui acompanhamento terapêutico, aconselhamento clínico ou atendimento de emergência.</strong> Se você está passando por uma crise, procure ajuda profissional ou o CVV (188).</p>" +
+      "<h2>3. Propriedade intelectual</h2><p>Todo o conteúdo original deste site (textos, identidade visual, gravações) pertence ao Essência em Diálogo, salvo quando indicado o contrário. Reprodução sem autorização não é permitida.</p>" +
+      "<h2>4. Formulário de contato</h2><p>Ao enviar uma pergunta pelo formulário de contato, você concorda que ela pode ser usada (de forma anônima) em episódios futuros do podcast.</p>" +
+      "<h2>5. Disponibilidade</h2><p>Fazemos esforços razoáveis para manter o site disponível, mas não garantimos operação ininterrupta.</p>" +
+      "<h2>6. Alterações</h2><p>Estes termos podem ser atualizados a qualquer momento; a data no topo desta página reflete a versão mais recente.</p>",
+  },
+};
+
+/**
+ * Cria as duas páginas legais com o texto inicial (a mesma minuta que
+ * já estava no código), uma única vez — `reviewedAt: null` até o admin
+ * marcar como revisado em `/admin/legal-pages`. Idempotente: nunca
+ * sobrescreve se a página já existir (mesmo que ainda não revisada).
+ */
+export async function ensureLegalPagesSeeded(): Promise<void> {
+  for (const [key, defaults] of Object.entries(DEFAULT_LEGAL_PAGES)) {
+    const existing = await prisma.legalPage.findUnique({ where: { key } });
+    if (existing) continue;
+
+    await prisma.legalPage.create({
+      data: { key, title: defaults.title, content: defaults.content, reviewedAt: null },
+    });
+
+    console.log(`[seed] página legal "${defaults.title}" criada (ainda não revisada).`);
+  }
+}

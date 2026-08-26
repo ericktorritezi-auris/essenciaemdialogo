@@ -25,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/admin/contact-submissions", label: "Perguntas", adminOnly: true },
   { href: "/admin/users", label: "Usuários", adminOnly: true },
   { href: "/admin/audit-log", label: "Logs", adminOnly: true },
+  { href: "/admin/legal-pages", label: "Páginas Legais", adminOnly: true },
 ];
 
 export function AdminNav() {

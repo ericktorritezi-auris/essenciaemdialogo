@@ -64,6 +64,10 @@ export async function SiteFooter() {
         <div className="mt-6 text-center text-xs text-ivory/40">
           <p>© {new Date().getFullYear()} Essência em Diálogo. Todos os direitos reservados.</p>
           <p className="mt-1">Desenvolvido por Erick Torritezi.</p>
+          <p className="mt-3 flex justify-center gap-4">
+            <Link href="/privacidade" className="hover:text-terracotta">Política de Privacidade</Link>
+            <Link href="/termos" className="hover:text-terracotta">Termos de Uso</Link>
+          </p>
         </div>
       </div>
     </footer>
