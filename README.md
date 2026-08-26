@@ -2,28 +2,9 @@
 
 > **Duas perspectivas. Um tema. Uma conversa além da superfície.**
 
-Website institucional, editorial e audiovisual do podcast **Essência em Diálogo**, apresentado por **Erick Torritezi** e **Iolanda Reis**, com CMS próprio para gestão de episódios, artigos, notícias, eventos e mídia.
+Website institucional, editorial e audiovisual do podcast **Essência em Diálogo**, apresentado por **Erick Torritezi** e **Iolanda Reis**, com CMS próprio para gestão de episódios, artigos, notícias, eventos, mídia, usuários e rádio.
 
-Este repositório é a fonte de verdade do código do projeto.
-
----
-
-## Sobre o projeto
-
-O Essência em Diálogo não é um site institucional simples nem um portal de blog genérico — é uma plataforma editorial própria, pensada para crescer de forma independente das plataformas externas onde o podcast é distribuído (Spotify, YouTube, Apple Podcasts, etc.).
-
-Principais características:
-
-- Site público **mobile first**, editorial, cinematográfico e premium.
-- CMS próprio com controle de acesso (Admin / Colaborador) e fluxo de aprovação editorial.
-- Módulos de conteúdo: Episódios, Artigos, Notícias, Eventos.
-- Seção **Últimos Lançamentos**, agregando conteúdo publicado na semana editorial corrente (`America/Sao_Paulo`, segunda a domingo).
-- Módulo **Rádio / ON AIR** configurável.
-- Auditoria integral e imutável de ações administrativas.
-- SEO estruturado por conteúdo (title, description, OG, schema.org).
-- Biblioteca de mídia com storage persistente (object storage S3-compatible).
-
-Especificação completa do produto: ver `docs/PROMPT_MESTRE.md` (ou documento equivalente no repositório de documentação do projeto).
+Projeto construído em 12 sprints — ver `docs/LAUNCH_CHECKLIST.md` para o estado consolidado de tudo que foi entregue e o que ainda fica como melhoria futura.
 
 ---
 
@@ -31,142 +12,93 @@ Especificação completa do produto: ver `docs/PROMPT_MESTRE.md` (ou documento e
 
 | Camada | Tecnologia |
 |---|---|
-| Framework | Next.js (App Router) |
+| Framework | Next.js 14 (App Router) |
 | Linguagem | TypeScript |
 | ORM | Prisma |
 | Banco de dados | PostgreSQL (Railway) |
-| Autenticação | Sessão server-side + Argon2id |
-| Editor rich text | Tiptap (com sanitização server-side) |
-| Storage de mídia | Object storage S3-compatible (a confirmar provedor) |
+| Autenticação | Sessão server-side (iron-session) + Argon2id |
+| Editor rich text | Tiptap, com sanitização server-side |
+| Storage de mídia | Cloudflare R2 (S3-compatible) |
 | CSS / Design System | Tailwind CSS + tokens customizados |
-| Busca | PostgreSQL Full Text Search |
-| Deploy | Railway |
-| CI | GitHub Actions |
-
-> A stack final e as justificativas técnicas estão documentadas em `docs/ARCHITECTURE.md`.
+| Fontes | Playfair Display + Montserrat, auto-hospedadas (`next/font/local`) |
+| Busca | PostgreSQL (`contains`, ver `docs/SEARCH.md`) |
+| Deploy | Railway — 100% automatizado (migrations + bootstrap do admin no boot) |
 
 ---
 
-## Requisitos
+## Estrutura de pastas
 
-- Node.js LTS (versão a fixar em `.nvmrc` / `engines` do `package.json`)
-- PostgreSQL 15+ (local via Docker, ou instância Railway em ambiente de desenvolvimento)
-- Conta de object storage S3-compatible para desenvolvimento (ou emulação local, ex. MinIO)
+```
+src/app/
+├── (public)/          ← todas as páginas públicas, layout compartilhado
+│   ├── layout.tsx       (cabeçalho + rodapé, persiste durante navegação)
+│   ├── page.tsx          Home
+│   ├── episodios/
+│   ├── artigos/
+│   ├── noticias/
+│   ├── eventos/
+│   ├── quem-somos/
+│   ├── busca/
+│   ├── contato/
+│   ├── radio/
+│   ├── privacidade/
+│   └── termos/
+├── admin/              ← painel administrativo (RBAC: Admin/Colaborador)
+├── login/
+├── api/                 ← rotas de API (públicas + /api/admin/*)
+├── layout.tsx           ← layout raiz (fontes, metadata base)
+├── sitemap.ts
+└── robots.ts
 
----
-
-## Ambiente
-
-1. Copie o arquivo de exemplo de variáveis de ambiente:
-   ```bash
-   cp .env.example .env
-   ```
-2. Preencha as variáveis locais (nunca commitar `.env`). Referência completa em `docs/ENVIRONMENT.md`.
-3. Timezone oficial de negócio do projeto: `America/Sao_Paulo` (`APP_TIMEZONE`).
-
----
-
-## Instalação
-
-```bash
-# instalar dependências
-npm install
-
-# aplicar migrations no banco local
-npx prisma migrate dev
-
-# rodar o projeto em modo desenvolvimento
-npm run dev
+src/lib/                 ← lógica de domínio (auth, conteúdo, storage, SEO...)
+src/components/          ← componentes React (admin/ e public/)
+prisma/schema.prisma      ← schema do banco
+docs/                     ← toda a documentação técnica do projeto
 ```
 
-A aplicação sobe por padrão em `http://localhost:3000`.
-
 ---
+
+## Instalação e desenvolvimento local
+
+```bash
+cp .env.example .env   # preencher com valores reais — ver docs/ENVIRONMENT.md
+npm install
+npx prisma generate
+npm run dev
+```
 
 ## Scripts
 
 | Comando | Descrição |
 |---|---|
 | `npm run dev` | Ambiente de desenvolvimento |
-| `npm run build` | Build de produção |
-| `npm run start` | Inicia build de produção |
+| `npm run build` | Build de produção (`prisma generate && next build`) |
+| `npm run start` | Aplica o schema no banco (`prisma db push`) e inicia o servidor |
 | `npm run lint` | Lint do código |
 | `npm run typecheck` | Verificação de tipos TypeScript |
-| `npm run test` | Testes unitários e de integração |
-| `npm run test:e2e` | Testes end-to-end |
-| `npx prisma migrate dev` | Aplica migrations em desenvolvimento |
-| `npx prisma studio` | Interface visual do banco (uso local apenas) |
 
----
+## Deploy
 
-## Testes
+Railway, 100% automatizado — nenhum comando manual necessário:
+1. `npm run start` aplica o schema no banco automaticamente a cada deploy.
+2. No boot do servidor (`src/instrumentation.ts`), uma série de rotinas idempotentes garantem: admin bootstrapado (com senha impressa uma vez no log), seções da Home, menu e plataformas com valores padrão, configuração do Rádio, fotos/biografias oficiais dos apresentadores.
 
-Este é um projeto de produção — nenhuma alteração é considerada pronta sem passar pela suíte de testes (unitários, integração, E2E, RBAC e timezone).
-
-```bash
-npm run test
-npm run test:e2e
-```
-
-Detalhes da estratégia de QA em `docs/QA.md` e `docs/TESTING.md`.
-
----
-
-## Build
-
-```bash
-npm run build
-npm run start
-```
-
----
-
-## Desenvolvimento → Produção
-
-Fluxo de deploy:
-
-```
-feature branch → Pull Request → CI (lint, typecheck, testes, build) →
-review → merge em main → build → migrations seguras →
-deploy staging → smoke/E2E → aprovação → deploy produção →
-healthcheck → smoke pós-deploy
-```
-
-Branch `main` é protegida. Nenhum merge é permitido sem CI verde.
-
-Detalhes em `docs/DEPLOYMENT.md` e `docs/RAILWAY.md`.
-
----
-
-## Estrutura de branches
-
-- `main` — produção, protegida
-- `develop` — integração (se aplicável)
-- `feature/*` — novas funcionalidades
-- `fix/*` — correções
-
-Commits seguem o padrão [Conventional Commits](https://www.conventionalcommits.org/).
+Ver `docs/AUTHORIZATION.md` para os detalhes completos do bootstrap.
 
 ---
 
 ## Documentação
 
-| Documento | Conteúdo |
-|---|---|
-| `docs/ARCHITECTURE.md` | Arquitetura técnica geral |
-| `docs/DATABASE.md` | Modelagem do banco e migrations |
-| `docs/DEPLOYMENT.md` | Processo de deploy |
-| `docs/RAILWAY.md` | Configuração de infraestrutura Railway |
-| `docs/ENVIRONMENT.md` | Variáveis de ambiente |
-| `docs/SECURITY.md` | Threat model e medidas de segurança |
-| `docs/AUTHORIZATION.md` | Autenticação e RBAC |
-| `docs/CMS.md` | Funcionamento do CMS |
-| `docs/CONTENT_MODEL.md` | Modelo de conteúdo editorial |
-| `docs/AUDIT.md` | Estratégia de auditoria |
-| `docs/BACKUP_RESTORE.md` | Backup e disaster recovery |
-| `docs/QA.md` / `docs/TESTING.md` | Estratégia de testes |
-| `docs/RUNBOOK.md` | Procedimentos operacionais de incidente |
-| `CHANGELOG.md` | Histórico de releases |
+Toda decisão técnica relevante — incluindo os porquês de escolhas conscientes de escopo — está documentada em `docs/`. Pontos de partida recomendados:
+
+- **`docs/LAUNCH_CHECKLIST.md`** — visão consolidada do que está pronto e do que falta, por prioridade.
+- **`docs/ENVIRONMENT.md`** — todas as variáveis de ambiente.
+- **`docs/AUTHORIZATION.md`** — autenticação, RBAC, bootstrap automático.
+- **`docs/CMS.md`** — fluxo editorial (Artigos/Notícias/Eventos/Episódios).
+- **`docs/DESIGN_SYSTEM.md`** e **`docs/DESIGN_PASS.md`** — identidade visual.
+- **`docs/PUBLIC_LAYOUT.md`** — estrutura de layout compartilhado do site público.
+- **`docs/SECURITY_REVIEW.md`** — revisão de segurança e dependências.
+- **`docs/QA_CHECKLIST.md`** — checklist de testes manuais para rodar antes do lançamento.
 
 ---
 
@@ -175,9 +107,3 @@ Commits seguem o padrão [Conventional Commits](https://www.conventionalcommits.
 Todos os direitos reservados.
 
 Desenvolvido por **Erick Torritezi**.
-
----
-
-## Contato
-
-Dúvidas técnicas sobre este repositório: abrir uma *issue* interna ou contatar o mantenedor do projeto.

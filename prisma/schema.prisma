@@ -269,6 +269,22 @@ model Redirect {
   @@unique([entityType, oldSlug])
 }
 
+// Páginas legais (Política de Privacidade, Termos de Uso) — editáveis
+// pelo admin via Tiptap, com marcação explícita de revisão. Antes da
+// Sprint 12 (correção), esse texto era hardcoded no código — o que
+// contrariava o princípio do projeto de nenhum conteúdo editorial
+// fixo (Seção 3 do Prompt Mestre). `reviewedAt` é o "OK" formal: só
+// enquanto for null a página pública mostra o aviso de minuta técnica.
+model LegalPage {
+  id         String    @id @default(uuid())
+  key        String    @unique // "privacy" | "terms"
+  title      String
+  content    String
+  reviewedAt DateTime?
+  reviewedBy String?
+  updatedAt  DateTime  @updatedAt
+}
+
 model SiteSetting {
   key   String @id
   value Json
