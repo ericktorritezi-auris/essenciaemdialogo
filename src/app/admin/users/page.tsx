@@ -23,6 +23,11 @@ export default function AdminUsersPage() {
   const [creating, setCreating] = useState(false);
   const [createdCredentials, setCreatedCredentials] = useState<{ email: string; password: string } | null>(null);
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
   function load() {
     apiFetch<{ users: User[] }>("/api/admin/users")
       .then((data) => setUsers(data.users))
@@ -76,6 +81,41 @@ export default function AdminUsersPage() {
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erro ao atualizar.");
+    }
+  }
+
+  function startEdit(user: User) {
+    setEditingId(user.id);
+    setEditName(user.name);
+    setEditEmail(user.email);
+    setError(null);
+  }
+
+  async function saveEdit(userId: string) {
+    setSavingEdit(true);
+    setError(null);
+    try {
+      await apiFetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ name: editName, email: editEmail }),
+      });
+      setEditingId(null);
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erro ao salvar edição.");
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
+  async function handleDelete(user: User) {
+    if (!confirm(`Excluir "${user.name}" (${user.email}) definitivamente? Isso não pode ser desfeito.`)) return;
+    setError(null);
+    try {
+      await apiFetch(`/api/admin/users/${user.id}`, { method: "DELETE" });
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erro ao excluir.");
     }
   }
 
@@ -146,24 +186,73 @@ export default function AdminUsersPage() {
       {users && users.length > 0 && (
         <div className="mt-6 space-y-2">
           {users.map((user) => (
-            <div key={user.id} className="flex items-center justify-between rounded border border-bronze/20 bg-charcoal p-4">
-              <div>
-                <p className="text-ivory">
-                  {user.name} <span className="text-xs text-ivory/40">({user.email})</span>
-                </p>
-                <p className="mt-1 text-xs text-bronze">
-                  {user.role === "ADMIN" ? "Administrador" : "Colaborador"}
-                  {!user.active && <span className="ml-2 text-terracotta">Inativo</span>}
-                </p>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <button type="button" onClick={() => toggleRole(user)} className="text-ivory/70 hover:text-terracotta">
-                  Trocar papel
-                </button>
-                <button type="button" onClick={() => toggleActive(user)} className="text-ivory/70 hover:text-terracotta">
-                  {user.active ? "Desativar" : "Ativar"}
-                </button>
-              </div>
+            <div key={user.id} className="rounded border border-bronze/20 bg-charcoal p-4">
+              {editingId === user.id ? (
+                <div className="space-y-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="block text-xs text-ivory/60">
+                      Nome
+                      <input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="mt-1 w-full rounded border border-bronze/30 bg-warm-black px-2 py-1.5 text-sm text-ivory"
+                      />
+                    </label>
+                    <label className="block text-xs text-ivory/60">
+                      E-mail
+                      <input
+                        type="email"
+                        value={editEmail}
+                        onChange={(e) => setEditEmail(e.target.value)}
+                        className="mt-1 w-full rounded border border-bronze/30 bg-warm-black px-2 py-1.5 text-sm text-ivory"
+                      />
+                    </label>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      disabled={savingEdit}
+                      onClick={() => saveEdit(user.id)}
+                      className="rounded bg-terracotta px-3 py-1.5 text-sm text-ivory disabled:opacity-60"
+                    >
+                      {savingEdit ? "Salvando…" : "Salvar"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingId(null)}
+                      className="rounded border border-bronze/30 px-3 py-1.5 text-sm text-ivory/70"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-ivory">
+                      {user.name} <span className="text-xs text-ivory/40">({user.email})</span>
+                    </p>
+                    <p className="mt-1 text-xs text-bronze">
+                      {user.role === "ADMIN" ? "Administrador" : "Colaborador"}
+                      {!user.active && <span className="ml-2 text-terracotta">Inativo</span>}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm">
+                    <button type="button" onClick={() => startEdit(user)} className="text-ivory/70 hover:text-terracotta">
+                      Editar
+                    </button>
+                    <button type="button" onClick={() => toggleRole(user)} className="text-ivory/70 hover:text-terracotta">
+                      Trocar papel
+                    </button>
+                    <button type="button" onClick={() => toggleActive(user)} className="text-ivory/70 hover:text-terracotta">
+                      {user.active ? "Desativar" : "Ativar"}
+                    </button>
+                    <button type="button" onClick={() => handleDelete(user)} className="text-terracotta hover:underline">
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
