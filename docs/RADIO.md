@@ -21,3 +21,22 @@ Se a rádio estiver desabilitada, `/radio` não dá 404 — mostra uma mensagem 
 ## Ativação
 
 `enabled: false` por padrão (seed automático). Nada aparece no site até você configurar um modo com conteúdo real e marcar "Rádio habilitado" em `/admin/radio`.
+
+## Reprodução persistente ao navegar — entregue (Sprint 11)
+
+Pedido do Erick: a rádio continuar tocando enquanto o visitante navega pelo site, sem parar a cada troca de página.
+
+**O que mudou:** `src/app/(public)/layout.tsx` — um layout compartilhado por todas as 13 páginas públicas (Home, Episódios, Artigos, Notícias, Eventos, Quem Somos, Busca, Contato, Rádio). Antes, cada página renderizava o próprio `<SiteHeader />` (e a `<OnAirBar />` dentro dele) individualmente — toda navegação destruía e recriava a barra do zero. Agora o cabeçalho vive só no layout, que o Next.js mantém montado durante a navegação entre rotas filhas — mecanismo nativo do App Router, mesmo padrão de players persistentes (Spotify Web, SoundCloud).
+
+**Player Spotify — embed real, não mais só um link:** modo `spotify` agora mostra o player compacto de verdade (iframe oficial, 80px de altura) direto na barra ON AIR, em vez de um link para `/radio`. Como o layout persiste, o player não reinicia ao trocar de página.
+
+**Por modo:**
+
+| Modo | Comportamento na barra após esta sprint |
+|---|---|
+| `spotify` | Player compacto real embutido (80px) — toca continuamente ao navegar |
+| `own_audio` | `<audio>` nativo — também persiste automaticamente pelo mesmo motivo |
+| `external` | Continua como link para `/radio` — não há garantia de que um iframe arbitrário de terceiro se adapte bem a 80px, então mantive a versão mais segura |
+| `editorial_playlist` | Continua como link "Ver playlist completa" — não é um stream contínuo por natureza (lista de itens separados); tocar em sequência automaticamente seria um player customizado, escopo maior, não construído nesta sprint |
+
+**Refatoração mecânica:** as 13 páginas públicas foram movidas para dentro de um route group `src/app/(public)/` — isso não muda nenhuma URL (route groups do Next.js não aparecem no caminho), só a organização interna das pastas. Todo link existente (`href="/episodios"` etc.) continua funcionando exatamente igual.
