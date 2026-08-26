@@ -24,6 +24,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/noticias`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${siteUrl}/eventos`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${siteUrl}/radio`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${siteUrl}/privacidade`, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${siteUrl}/termos`, changeFrequency: "yearly", priority: 0.2 },
   ];
 
   const [episodes, articles, news, events] = await Promise.all([
