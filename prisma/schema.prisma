@@ -248,7 +248,11 @@ model AuditLog {
   correlationId String?
   createdAt    DateTime @default(now())
 
-  actor User? @relation(fields: [actorUserId], references: [id])
+  // onDelete explícito (em vez de confiar no padrão implícito do
+  // Prisma): excluir um usuário nunca apaga o log — só anonimiza quem
+  // fez a ação (Seção 9 — auditoria é apenas-insert, nunca perde o
+  // registro em si).
+  actor User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
 
   @@index([entityType, entityId])
   @@index([actorUserId])

@@ -15,7 +15,9 @@ Admin only. Permite:
 
 **Um Admin não edita a própria conta por aqui** — usa `/admin/profile` para isso (evita o risco de alguém se auto-rebaixar ou se desativar sem querer por engano).
 
-Não há exclusão de usuário (só desativação) — isso preserva a integridade referencial (conteúdo já publicado continua tendo um autor válido) e o histórico de auditoria.
+**Editar** nome e e-mail de qualquer usuário.
+
+**Excluir de verdade** (não é soft delete) — pensado para limpar contas de teste, como a de Colaborador criada automaticamente na Sprint 10. Só funciona se o usuário **não for autor de nenhum conteúdo** (Artigo, Notícia, Evento, Episódio) — se for, a exclusão é recusada com a contagem exata de onde ele é autor, e a recomendação é desativar em vez de excluir. O log de auditoria nunca é apagado junto — os registros de ações desse usuário continuam existindo, só ficam sem o vínculo com uma conta que não existe mais (Seção 9 — auditoria é apenas-insert).
 
 ## `/admin/audit-log` — Log de Atividades
 
