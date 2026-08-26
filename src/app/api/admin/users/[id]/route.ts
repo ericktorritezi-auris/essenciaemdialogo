@@ -143,22 +143,36 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   }
 
   const [articleCount, newsCount, eventCount, episodeCount] = await Promise.all([
-    prisma.article.count({ where: { authorId: existing.id } }),
-    prisma.news.count({ where: { authorId: existing.id } }),
-    prisma.event.count({ where: { authorId: existing.id } }),
-    prisma.episode.count({ where: { createdBy: existing.id } }),
+    prisma.article.count({ where: { authorId: existing.id, deletedAt: null } }),
+    prisma.news.count({ where: { authorId: existing.id, deletedAt: null } }),
+    prisma.event.count({ where: { authorId: existing.id, deletedAt: null } }),
+    prisma.episode.count({ where: { createdBy: existing.id, deletedAt: null } }),
   ]);
   const totalAuthored = articleCount + newsCount + eventCount + episodeCount;
 
   if (totalAuthored > 0) {
     return NextResponse.json(
       {
-        error: `Este usuário é autor de ${totalAuthored} conteúdo(s) e não pode ser excluído — desative a conta em vez disso.`,
+        error: `Este usuário é autor de ${totalAuthored} conteúdo(s) ativo(s) e não pode ser excluído — desative a conta em vez disso.`,
         usage: { articles: articleCount, news: newsCount, events: eventCount, episodes: episodeCount },
       },
       { status: 409 },
     );
   }
+
+  // O usuário pode ter conteúdo já excluído (soft delete — continua na
+  // lixeira, invisível nas telas, mas fisicamente no banco apontando
+  // para ele). Como `authorId`/`createdBy` é uma referência obrigatória,
+  // o banco recusaria apagar o usuário enquanto esses registros
+  // existirem. Como já estão na lixeira (o usuário já pediu para
+  // "excluir" esse conteúdo antes), apagar de vez agora é a extensão
+  // natural dessa decisão, não uma perda de dado nova.
+  const [purgedArticles, purgedNews, purgedEvents, purgedEpisodes] = await prisma.$transaction([
+    prisma.article.deleteMany({ where: { authorId: existing.id, deletedAt: { not: null } } }),
+    prisma.news.deleteMany({ where: { authorId: existing.id, deletedAt: { not: null } } }),
+    prisma.event.deleteMany({ where: { authorId: existing.id, deletedAt: { not: null } } }),
+    prisma.episode.deleteMany({ where: { createdBy: existing.id, deletedAt: { not: null } } }),
+  ]);
 
   await prisma.user.delete({ where: { id: existing.id } });
 
@@ -169,6 +183,14 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     entityType: "User",
     entityId: existing.id,
     entityLabel: existing.email,
+    metadata: {
+      purgedTrashedContent: {
+        articles: purgedArticles.count,
+        news: purgedNews.count,
+        events: purgedEvents.count,
+        episodes: purgedEpisodes.count,
+      },
+    },
   });
 
   return NextResponse.json({ ok: true });
