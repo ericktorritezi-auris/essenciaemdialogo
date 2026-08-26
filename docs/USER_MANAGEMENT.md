@@ -17,7 +17,11 @@ Admin only. Permite:
 
 **Editar** nome e e-mail de qualquer usuário.
 
-**Excluir de verdade** (não é soft delete) — pensado para limpar contas de teste, como a de Colaborador criada automaticamente na Sprint 10. Só funciona se o usuário **não for autor de nenhum conteúdo** (Artigo, Notícia, Evento, Episódio) — se for, a exclusão é recusada com a contagem exata de onde ele é autor, e a recomendação é desativar em vez de excluir. O log de auditoria nunca é apagado junto — os registros de ações desse usuário continuam existindo, só ficam sem o vínculo com uma conta que não existe mais (Seção 9 — auditoria é apenas-insert).
+**Excluir de verdade** (não é soft delete) — pensado para limpar contas de teste, como a de Colaborador criada automaticamente na Sprint 10. Só é recusada se o usuário for autor de conteúdo **ativo** (não excluído) — Artigo, Notícia, Evento ou Episódio ainda visível nas telas; nesse caso, a recomendação é desativar em vez de excluir.
+
+**Conteúdo já na lixeira não bloqueia mais a exclusão** (corrigido em 26/08 — bug real identificado pelo Erick): se o usuário tiver algo que ele mesmo já excluiu antes (soft delete — invisível nas telas, mas ainda fisicamente no banco), esse conteúdo é apagado de vez, automaticamente, no mesmo momento em que o usuário é excluído — sem isso, o banco recusaria a exclusão por causa da referência obrigatória entre o conteúdo e o autor. A quantidade de itens da lixeira removidos junto fica registrada no log de auditoria (`USER_DELETED`, campo `metadata.purgedTrashedContent`).
+
+O log de auditoria em si nunca é apagado junto — os registros de ações desse usuário continuam existindo, só ficam sem o vínculo com uma conta que não existe mais (Seção 9 — auditoria é apenas-insert).
 
 ## `/admin/audit-log` — Log de Atividades
 
